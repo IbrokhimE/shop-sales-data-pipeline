@@ -34,6 +34,9 @@ jobs:
           else
             echo "No historical sales JSON found"
           fi
+      - name: Import historical sales into SQLite
+        working-directory: python
+        run: python restore_sales.py
 
       - name: Generate daily sales
         working-directory: python
