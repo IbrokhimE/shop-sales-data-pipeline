@@ -26,6 +26,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Restore historical sales data
+        run: |
+          if [ -f docs/sales_data.json ]; then
+            cp docs/sales_data.json python/sales_data.json
+            echo "Historical sales JSON restored"
+          else
+            echo "No historical sales JSON found"
+          fi
+
       - name: Generate daily sales
         working-directory: python
         run: python generate_sales.py
