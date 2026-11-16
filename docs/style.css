@@ -1,0 +1,363 @@
+
+/* ==========================================
+   SHOP SALES ANALYTICS DASHBOARD
+   Data Engineering Project
+   ========================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f6fb;
+  color: #1c2d43;
+  line-height: 1.5;
+}
+
+.dashboard {
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+/* HEADER */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+h1 {
+  font-size: 32px;
+  margin: 5px 0;
+  color: #142b45;
+}
+
+header p {
+  color: #64748b;
+  margin: 8px 0;
+}
+
+.eyebrow {
+  color: #2476b5;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.status {
+  background: #e2f7eb;
+  color: #16804a;
+  padding: 10px 16px;
+  border-radius: 25px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* FILTERS */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  background: white;
+  padding: 22px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.04);
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: bold;
+  flex: 1;
+  min-width: 160px;
+}
+
+select,
+button {
+  padding: 12px 14px;
+  border: 1px solid #d5dfeb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+select {
+  background: white;
+  color: #1c2d43;
+  width: 100%;
+}
+
+button {
+  background: #205782;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background .2s ease;
+}
+
+button:hover {
+  background: #123b5b;
+}
+
+button:focus-visible,
+select:focus-visible {
+  outline: 3px solid #91c8ef;
+  outline-offset: 2px;
+}
+
+/* KPI CARDS */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.card,
+.panel {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 3px 14px rgba(0,0,0,.05);
+  min-width: 0;
+}
+
+.card {
+  border-top: 4px solid #237bb7;
+  transition: transform .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card p {
+  color: #64748b;
+  margin: 0;
+  font-size: 14px;
+}
+
+.card h2 {
+  font-size: 32px;
+  margin: 12px 0 0;
+  color: #173657;
+  overflow-wrap: anywhere;
+}
+
+/* CHART LAYOUT */
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  color: #173657;
+}
+
+.panel > p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 22px;
+}
+
+/* BAR CHARTS */
+
+.bar-row {
+  margin: 17px 0;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.bar-label span {
+  color: #334155;
+  overflow-wrap: anywhere;
+}
+
+.bar-label strong {
+  color: #173657;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.bar-track {
+  background: #e8eff7;
+  border-radius: 10px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  background: #237bb7;
+  height: 100%;
+  border-radius: 10px;
+  transition: width .35s ease;
+}
+
+.product-bar {
+  background: #159a83;
+}
+
+/* DAILY SALES CHART */
+
+#dailyChart {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#dailyChart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 400px;
+}
+
+/* TRANSACTION TABLE */
+
+.table-wrap {
+  overflow-x: auto;
+  max-height: 550px;
+  overflow-y: auto;
+  border: 1px solid #e6ebf1;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 13px 15px;
+  border-bottom: 1px solid #e6ebf1;
+  font-size: 13px;
+}
+
+th {
+  background: #edf3f9;
+  color: #173657;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafcff;
+}
+
+tbody tr:hover {
+  background: #edf6fc;
+}
+
+/* FOOTER */
+
+footer {
+  text-align: center;
+  color: #64748b;
+  padding: 28px 10px;
+  font-size: 12px;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .dashboard {
+    padding: 20px;
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+  }
+
+  .wide {
+    grid-column: auto;
+  }
+
+  .card h2 {
+    font-size: 26px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .dashboard {
+    padding: 14px;
+  }
+
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+  .filters {
+    padding: 16px;
+  }
+
+  .filters label {
+    flex-basis: 100%;
+  }
+
+  .filters button {
+    width: 100%;
+  }
+
+  .kpis {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card,
+  .panel {
+    padding: 18px;
+  }
+
+  .card h2 {
+    font-size: 28px;
+  }
+
+  .charts {
+    gap: 14px;
+  }
+
+  .bar-label {
+    font-size: 12px;
+  }
+}
