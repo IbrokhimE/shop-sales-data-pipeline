@@ -409,3 +409,52 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================
+   HISTORICAL WEATHER & SALES TABLE
+   ========================================== */
+
+#weatherSalesSection table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+#weatherSalesSection thead {
+  background: #17365d;
+  color: #ffffff;
+}
+
+#weatherSalesSection th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+}
+
+#weatherSalesSection td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#weatherSalesSection tbody tr:nth-child(even) {
+  background: #f4f8fc;
+}
+
+#weatherSalesSection tbody tr:hover {
+  background: #eaf3fc;
+}
+
+#weatherSalesSection td:nth-child(3) {
+  color: #237bb7;
+  font-weight: 600;
+}
+
+#weatherSalesSection td:nth-child(4) {
+  color: #0f766e;
+  font-weight: 600;
+}
+
+#weatherSalesSection td:nth-child(5) {
+  font-weight: 700;
+  color: #17365d;
+}
