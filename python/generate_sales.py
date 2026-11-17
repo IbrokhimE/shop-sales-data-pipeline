@@ -1,7 +1,7 @@
 
 import sqlite3
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 DB_NAME = "shopsales.db"
@@ -26,20 +26,55 @@ PRODUCTS = [
     ("P110", "Orange Juice", "Drinks", 3.25, 7)
 ]
 
+# Higher weights during breakfast and lunch.
+# Hours are local shop trading hours (UK).
+HOURLY_WEIGHTS = {
+    6: 3,
+    7: 7,
+    8: 14,
+    9: 12,
+    10: 7,
+    11: 9,
+    12: 16,
+    13: 15,
+    14: 10,
+    15: 7,
+    16: 6,
+    17: 5,
+    18: 3,
+    19: 2
+}
+
+
+def generate_transaction_time():
+    hour = random.choices(
+        list(HOURLY_WEIGHTS.keys()),
+        weights=list(HOURLY_WEIGHTS.values()),
+        k=1
+    )[0]
+
+    minute = random.randint(0, 59)
+    second = random.randint(0, 59)
+
+    return f"{hour:02d}:{minute:02d}:{second:02d}"
+
+
 def generate_daily_sales(sales_date=None):
     if sales_date is None:
         sales_date = datetime.now().date()
 
     date_text = sales_date.isoformat()
+
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     try:
-        # Create source table if necessary
+        # Create source table if necessary.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS ShopSales (
                 TransactionID TEXT,
                 TransactionDate TEXT,
+                TransactionTime TEXT,
                 ShopID TEXT,
                 ShopName TEXT,
                 ProductID TEXT,
@@ -51,9 +86,22 @@ def generate_daily_sales(sales_date=None):
             )
         """)
 
-        # Prevent accidental repeat generation
+        # Add time column to existing databases safely.
+        cursor.execute("PRAGMA table_info(ShopSales)")
+        existing_columns = [
+            row[1] for row in cursor.fetchall()
+        ]
+
+        if "TransactionTime" not in existing_columns:
+            cursor.execute("""
+                ALTER TABLE ShopSales
+                ADD COLUMN TransactionTime TEXT
+            """)
+
+        # Prevent duplicate generation for the same day.
         cursor.execute("""
-            SELECT COUNT(*) FROM ShopSales
+            SELECT COUNT(*)
+            FROM ShopSales
             WHERE TransactionDate = ?
         """, (date_text,))
 
@@ -75,7 +123,14 @@ def generate_daily_sales(sales_date=None):
                     k=1
                 )[0]
 
-                product_id, product_name, category, price, _ = product
+                (
+                    product_id,
+                    product_name,
+                    category,
+                    price,
+                    _
+                ) = product
+
                 quantity = random.choices(
                     [1, 2, 3, 4],
                     weights=[65, 25, 8, 2],
@@ -89,11 +144,15 @@ def generate_daily_sales(sales_date=None):
                 transaction_id = (
                     f"SYN-{sales_date:%Y%m%d}-{sequence:06d}"
                 )
+
+                transaction_time = generate_transaction_time()
+
                 sequence += 1
 
                 records.append((
                     transaction_id,
                     date_text,
+                    transaction_time,
                     shop_id,
                     shop_name,
                     product_id,
@@ -106,23 +165,44 @@ def generate_daily_sales(sales_date=None):
 
         cursor.executemany("""
             INSERT INTO ShopSales (
-                TransactionID, TransactionDate,
-                ShopID, ShopName, ProductID,
-                ProductName, Category, Quantity,
-                UnitPrice, SalesAmount
+                TransactionID,
+                TransactionDate,
+                TransactionTime,
+                ShopID,
+                ShopName,
+                ProductID,
+                ProductName,
+                Category,
+                Quantity,
+                UnitPrice,
+                SalesAmount
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, records)
 
         conn.commit()
 
         print("Daily sales generated:", date_text)
         print("New sales records:", len(records))
+
         print(
             "Generated revenue: £",
-            f"{sum(r[9] for r in records):,.2f}",
+            f"{sum(r[10] for r in records):,.2f}",
             sep=""
         )
+
+        print("Hourly transaction breakdown:")
+
+        hourly_counts = {}
+
+        for record in records:
+            hour = record[2][:2]
+            hourly_counts[hour] = (
+                hourly_counts.get(hour, 0) + 1
+            )
+
+        for hour, count in sorted(hourly_counts.items()):
+            print(f"{hour}:00 - {count} transactions")
 
     finally:
         conn.close()
