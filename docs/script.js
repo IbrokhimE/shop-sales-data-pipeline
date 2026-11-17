@@ -448,11 +448,100 @@ function updateDashboard() {
 
   renderDaily(filtered);
   renderTable(filtered);
+  renderWeeklyBreakdown(filtered);
 }
 
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
+
+
+function renderWeeklyBreakdown(rows) {
+  const section = document.getElementById("weeklyBreakdownSection");
+  const tbody = document.getElementById("weeklyBreakdownTable");
+
+  if (!section || !tbody) return;
+
+  const isWeekly = periodFilter.value === "weekly";
+  section.style.display = isWeekly ? "" : "none";
+
+  if (!isWeekly) return;
+
+  tbody.replaceChildren();
+
+  const weekStart = weekStartFromInput(weekFilter.value);
+  if (!weekStart) return;
+
+  const start = parseDate(weekStart);
+  let weeklyTotal = 0;
+  let weeklyTransactions = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(start);
+    date.setUTCDate(start.getUTCDate() + i);
+
+    const dateText = formatDate(date);
+    const dayName = date.toLocaleDateString("en-GB", {
+      weekday: "long",
+      timeZone: "UTC"
+    });
+
+    const dayRows = rows.filter(
+      row => row.TransactionDate === dateText
+    );
+
+    const revenue = dayRows.reduce(
+      (sum, row) => sum + row.SalesAmount, 0
+    );
+
+    const transactions = dayRows.length;
+    const average = transactions ? revenue / transactions : 0;
+
+    const isFuture = dateText > todayISO();
+
+    weeklyTotal += revenue;
+    weeklyTransactions += transactions;
+
+    const tr = document.createElement("tr");
+
+    const values = [
+      dayName,
+      dateText,
+      isFuture ? "Not yet recorded" : money(revenue),
+      isFuture ? "—" : transactions.toLocaleString("en-GB"),
+      isFuture ? "—" : money(average)
+    ];
+
+    values.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  }
+
+  const totalRow = document.createElement("tr");
+
+  [
+    "WEEK TOTAL",
+    "",
+    money(weeklyTotal),
+    weeklyTransactions.toLocaleString("en-GB"),
+    money(
+      weeklyTransactions
+        ? weeklyTotal / weeklyTransactions
+        : 0
+    )
+  ].forEach(value => {
+    const td = document.createElement("td");
+    td.textContent = value;
+    td.style.fontWeight = "bold";
+    totalRow.appendChild(td);
+  });
+
+  tbody.appendChild(totalRow);
+}
 
 periodFilter.addEventListener("change", () => {
   updatePeriodControls();
