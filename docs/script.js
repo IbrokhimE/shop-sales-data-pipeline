@@ -2140,11 +2140,180 @@ function renderHistoricalWeatherSales() {
     });
   }
 
-  renderComparison(
-    "temperatureSalesChart",
-    "temperature",
-    "°C"
+function renderTemperatureScatterChart(rows) {
+  const container = document.getElementById(
+    "temperatureSalesChart"
   );
+
+  if (!container) return;
+
+  container.replaceChildren();
+
+  const valid = rows.filter(row =>
+    row.temperature !== null &&
+    Number.isFinite(Number(row.temperature)) &&
+    Number.isFinite(Number(row.revenue))
+  );
+
+  if (!valid.length) {
+    container.textContent = "No matching data available.";
+    return;
+  }
+
+  const width = 760;
+  const height = 360;
+  const left = 85;
+  const right = 35;
+  const top = 30;
+  const bottom = 65;
+
+  const chartW = width - left - right;
+  const chartH = height - top - bottom;
+
+  const temperatures = valid.map(row =>
+    Number(row.temperature)
+  );
+
+  const revenues = valid.map(row =>
+    Number(row.revenue)
+  );
+
+  const minTemp = Math.min(...temperatures) - 1;
+  const maxTemp = Math.max(...temperatures) + 1;
+  const maxRevenue = Math.max(...revenues, 1) * 1.15;
+
+  const xScale = value =>
+    left + (value - minTemp) /
+    (maxTemp - minTemp) * chartW;
+
+  const yScale = value =>
+    top + chartH - value / maxRevenue * chartH;
+
+  const ns = "http://www.w3.org/2000/svg";
+
+  const svg = document.createElementNS(ns, "svg");
+
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute(
+    "aria-label",
+    "Scatter chart comparing temperature and revenue"
+  );
+
+  svg.style.width = "100%";
+  svg.style.height = "auto";
+
+  function add(tag, attributes, text, parent = svg) {
+    const element = document.createElementNS(ns, tag);
+
+    Object.entries(attributes).forEach(([key, value]) => {
+      element.setAttribute(key, value);
+    });
+
+    if (text !== undefined) {
+      element.textContent = text;
+    }
+
+    parent.appendChild(element);
+    return element;
+  }
+
+  // Revenue grid lines and labels.
+  for (let i = 0; i <= 4; i++) {
+    const revenue = maxRevenue * i / 4;
+    const y = yScale(revenue);
+
+    add("line", {
+      x1: left,
+      y1: y,
+      x2: width - right,
+      y2: y,
+      stroke: "#e1e8f0"
+    });
+
+    add("text", {
+      x: left - 12,
+      y: y + 4,
+      "text-anchor": "end",
+      fill: "#64748b",
+      "font-size": 12
+    }, "£" + Math.round(revenue).toLocaleString("en-GB"));
+  }
+
+  // Temperature axis labels.
+  for (let i = 0; i <= 5; i++) {
+    const temperature =
+      minTemp + (maxTemp - minTemp) * i / 5;
+
+    const x = xScale(temperature);
+
+    add("text", {
+      x,
+      y: height - 38,
+      "text-anchor": "middle",
+      fill: "#64748b",
+      "font-size": 12
+    }, temperature.toFixed(1) + "°");
+  }
+
+  // Axis titles.
+  add("text", {
+    x: width / 2,
+    y: height - 8,
+    "text-anchor": "middle",
+    fill: "#334155",
+    "font-size": 14
+  }, "Average Temperature (°C)");
+
+  add("text", {
+    x: 18,
+    y: height / 2,
+    transform: `rotate(-90 18 ${height / 2})`,
+    "text-anchor": "middle",
+    fill: "#334155",
+    "font-size": 14
+  }, "Sales Revenue (£)");
+
+  const cityColors = {
+    Manchester: "#237bb7",
+    Birmingham: "#e59a36",
+    London: "#36a28c"
+  };
+
+  valid.forEach(row => {
+    const x = xScale(Number(row.temperature));
+    const y = yScale(Number(row.revenue));
+
+    const circle = add("circle", {
+      cx: x,
+      cy: y,
+      r: 9,
+      fill: cityColors[row.city] || "#64748b",
+      stroke: "#ffffff",
+      "stroke-width": 2,
+      tabindex: 0
+    });
+
+    const details =
+      `${row.city} | ${row.date}\n` +
+      `Temperature: ${Number(row.temperature).toFixed(1)}°C\n` +
+      `Revenue: ${money(row.revenue)}`;
+
+    add("title", {}, details, circle);
+
+    circle.addEventListener("mouseenter", () => {
+      circle.setAttribute("r", 13);
+    });
+
+    circle.addEventListener("mouseleave", () => {
+      circle.setAttribute("r", 9);
+    });
+  });
+
+  container.appendChild(svg);
+}
+
+  renderTemperatureScatterChart(rows);
 
   renderComparison(
     "rainfallSalesChart",
