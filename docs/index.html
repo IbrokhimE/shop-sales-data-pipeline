@@ -29,29 +29,39 @@
         </p>
       </div>
 
-      <span class="status">● Synthetic sales data</span>
+      <span class="status">
+        ● Synthetic sales data
+      </span>
     </header>
 
     <!-- DASHBOARD FILTERS -->
     <section class="filters">
-      
-<label>
-  Sales Period
-  <select id="periodFilter">
-    <option value="daily">Daily Sales</option>
-    <option value="weekly">Weekly Sales</option>
-  </select>
-</label>
 
-<label id="dateFilterLabel">
-  Select Date
-  <input type="date" id="dateFilter">
-</label>
+      <label>
+        Sales Period
+        <select id="periodFilter">
+          <option value="daily">Daily Sales</option>
+          <option value="weekly">Weekly Sales</option>
+          <option value="monthly">Monthly Sales</option>
+        </select>
+      </label>
 
-<label id="weekFilterLabel" style="display:none;">
-  Select Week
-  <input type="week" id="weekFilter">
-</label>
+      <label id="dateFilterLabel">
+        Select Date
+        <input type="date" id="dateFilter">
+      </label>
+
+      <label id="weekFilterLabel"
+             style="display:none;">
+        Select Week
+        <input type="week" id="weekFilter">
+      </label>
+
+      <label id="monthFilterLabel"
+             style="display:none;">
+        Select Month
+        <input type="month" id="monthFilter">
+      </label>
 
       <label>
         Shop
@@ -108,59 +118,268 @@
         <div id="productChart"></div>
       </article>
 
-      <!-- NEW: BEST SELLERS -->
       <article class="panel">
         <h3>Top 10 Best-Selling Products</h3>
         <p>Products ranked by units sold</p>
         <div id="bestSellersChart"></div>
       </article>
 
-      <!-- NEW: REVENUE RANKING -->
       <article class="panel">
         <h3>Top 10 Products by Revenue</h3>
         <p>Highest revenue-generating products</p>
         <div id="topRevenueChart"></div>
       </article>
 
-      <!-- DAILY SALES TREND -->
       <article class="panel wide">
         <h3>Daily Sales Trend</h3>
-        <p>Daily revenue across selected shops and products</p>
+        <p>
+          Daily revenue across selected shops
+          and products
+        </p>
         <div id="dailyChart"></div>
+      </article>
+
+      <!-- HOURLY ANALYTICS -->
+      <article class="panel">
+        <h3>Hourly Sales Revenue</h3>
+        <p>
+          Revenue by hour for transactions
+          with recorded times
+        </p>
+        <div id="hourlyRevenueChart"></div>
+      </article>
+
+      <article class="panel">
+        <h3>Hourly Transactions</h3>
+        <p>
+          Transaction counts by hour for
+          records with timestamps
+        </p>
+        <div id="hourlyTransactionsChart"></div>
       </article>
 
     </section>
 
+    <!-- WEEKLY SALES BREAKDOWN -->
+    <section class="panel"
+             id="weeklyBreakdownSection"
+             style="display:none;">
+
+      <h3>Weekly Sales Breakdown</h3>
+      <p>
+        Daily revenue and transactions
+        for the selected week
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Revenue</th>
+              <th>Transactions</th>
+              <th>Average Sale</th>
+            </tr>
+          </thead>
+
+          <tbody id="weeklyBreakdownTable"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- PROFIT AND LOSS DASHBOARD -->
+    <section id="profitLossSection">
+
+      <h2>Profit &amp; Loss Dashboard</h2>
+
+      <p>
+        Estimated financial performance based on
+        synthetic sales and simulated operating costs.
+        Figures are not actual business accounts.
+      </p>
+
+      <section class="kpis">
+
+        <article class="card">
+          <p>Sales Revenue</p>
+          <h2 id="plRevenue">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Product Costs</p>
+          <h2 id="plProductCosts">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Gross Profit</p>
+          <h2 id="plGrossProfit">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Labour Costs</p>
+          <h2 id="plLabourCosts">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Waste Costs</p>
+          <h2 id="plWasteCosts">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Other Operating Expenses</p>
+          <h2 id="plOtherExpenses">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Estimated Net Profit</p>
+          <h2 id="plNetProfit">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Estimated Net Profit Margin</p>
+          <h2 id="plProfitMargin">0.0%</h2>
+        </article>
+
+      </section>
+
+      <section class="charts">
+
+        <article class="panel wide">
+          <h3>Profit &amp; Loss Breakdown</h3>
+          <p>
+            Revenue, product costs, labour,
+            waste, other expenses and profit
+          </p>
+          <div id="profitLossChart"></div>
+        </article>
+
+        <article class="panel wide">
+          <h3>Profitability by Shop</h3>
+          <p>
+            Estimated financial performance
+            for each shop
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Shop</th>
+                  <th>Revenue</th>
+                  <th>Product Costs</th>
+                  <th>Labour</th>
+                  <th>Waste</th>
+                  <th>Other Costs</th>
+                  <th>Net Profit</th>
+                  <th>Margin</th>
+                </tr>
+              </thead>
+              <tbody id="shopProfitTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+      </section>
+
+    </section>
+
+    <!-- LABOUR PERFORMANCE -->
+    <section id="labourSection">
+
+      <h2>Labour Performance</h2>
+
+      <p>
+        Simulated staffing hours and labour costs
+        for operational performance analysis.
+      </p>
+
+      <section class="kpis">
+
+        <article class="card">
+          <p>Estimated Labour Hours</p>
+          <h2 id="labourHours">0</h2>
+        </article>
+
+        <article class="card">
+          <p>Labour Cost Percentage</p>
+          <h2 id="labourPercentage">0.0%</h2>
+        </article>
+
+        <article class="card">
+          <p>Sales per Labour Hour</p>
+          <h2 id="salesPerLabourHour">£0.00</h2>
+        </article>
+
+        <article class="card">
+          <p>Most Profitable Shop</p>
+          <h2 id="bestProfitShop">—</h2>
+        </article>
+
+      </section>
+
+      <section class="charts">
+
+        <article class="panel wide">
+          <h3>Labour Efficiency by Shop</h3>
+          <p>
+            Revenue generated per estimated
+            labour hour
+          </p>
+          <div id="labourEfficiencyChart"></div>
+        </article>
+
+      </section>
+
+    </section>
+
+    <!-- WEATHER AND LOCAL EVENTS -->
+    <section id="externalInsightsSection">
+
+      <h2>Weather &amp; Local Events</h2>
+
+      <p>
+        External conditions that may help explain
+        changes in shop sales.
+      </p>
+
+      <section class="charts">
+
+        <article class="panel">
+          <h3>Weather by Shop Location</h3>
+          <p>
+            Real weather observations or forecasts
+            for Manchester, Birmingham and London
+          </p>
+          <div id="weatherInsights">
+            Weather integration pending.
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>Upcoming Local Events</h3>
+          <p>
+            Nearby events that could influence
+            customer demand
+          </p>
+          <div id="localEvents">
+            Local events integration pending.
+          </div>
+        </article>
+
+      </section>
+
+    </section>
+
     <!-- TRANSACTION DETAILS -->
-    
-<!-- WEEKLY SALES BREAKDOWN -->
-<section class="panel" id="weeklyBreakdownSection"
-         style="display:none;">
-
-  <h3>Weekly Sales Breakdown</h3>
-  <p>Daily revenue and transactions for the selected week</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Day</th>
-          <th>Date</th>
-          <th>Revenue</th>
-          <th>Transactions</th>
-          <th>Average Sale</th>
-        </tr>
-      </thead>
-      <tbody id="weeklyBreakdownTable"></tbody>
-    </table>
-  </div>
-
-</section>
-
     <section class="panel">
 
       <h3>Sales Transactions</h3>
-      <p>Detailed records from the cleaned sales dataset</p>
+      <p>
+        Detailed records from the cleaned
+        sales dataset
+      </p>
 
       <div class="table-wrap">
         <table>
@@ -185,7 +404,8 @@
     <footer>
       Shop Sales Data Engineering Project |
       Python + SQLite + JavaScript |
-      Synthetic Sales Data
+      Synthetic Sales Data |
+      Simulated Financial Estimates
     </footer>
 
   </main>
