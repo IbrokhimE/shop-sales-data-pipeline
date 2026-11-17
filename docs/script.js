@@ -1563,6 +1563,13 @@ function updateDashboard() {
 
   // New Profit & Loss and labour analytics.
   renderProfitLoss(filtered);
+    // Update historical weather vs sales analysis.
+  if (
+    historicalWeatherData.length > 0 &&
+    typeof renderHistoricalWeatherSales === "function"
+  ) {
+    renderHistoricalWeatherSales();
+  }
 }
 
 // ==========================================
