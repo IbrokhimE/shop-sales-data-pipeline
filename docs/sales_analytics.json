@@ -1,0 +1,210 @@
+{
+  "GeneratedAt": "2026-11-17T20:27:52.093105",
+  "DataType": "Synthetic Sales Data",
+  "KPIs": {
+    "TotalTransactions": 1836,
+    "TotalRevenue": 10667.15,
+    "AverageTransactionValue": 5.81,
+    "TotalUnitsSold": 2702
+  },
+  "BestSellers": [
+    {
+      "ProductID": "P102",
+      "ProductName": "Latte",
+      "Category": "Drinks",
+      "UnitsSold": 447,
+      "TotalRevenue": 1564.5
+    },
+    {
+      "ProductID": "P105",
+      "ProductName": "Cappuccino",
+      "Category": "Drinks",
+      "UnitsSold": 384,
+      "TotalRevenue": 1382.4
+    },
+    {
+      "ProductID": "P104",
+      "ProductName": "Croissant",
+      "Category": "Food",
+      "UnitsSold": 348,
+      "TotalRevenue": 957.0
+    },
+    {
+      "ProductID": "P106",
+      "ProductName": "Americano",
+      "Category": "Drinks",
+      "UnitsSold": 276,
+      "TotalRevenue": 828.0
+    },
+    {
+      "ProductID": "P107",
+      "ProductName": "Chicken Baguette",
+      "Category": "Food",
+      "UnitsSold": 264,
+      "TotalRevenue": 1650.0
+    },
+    {
+      "ProductID": "P101",
+      "ProductName": "Chicken Sandwich",
+      "Category": "Food",
+      "UnitsSold": 236,
+      "TotalRevenue": 1298.0
+    },
+    {
+      "ProductID": "P109",
+      "ProductName": "Egg Sandwich",
+      "Category": "Food",
+      "UnitsSold": 210,
+      "TotalRevenue": 945.0
+    },
+    {
+      "ProductID": "P103",
+      "ProductName": "Tuna Baguette",
+      "Category": "Food",
+      "UnitsSold": 198,
+      "TotalRevenue": 990.0
+    },
+    {
+      "ProductID": "P110",
+      "ProductName": "Orange Juice",
+      "Category": "Drinks",
+      "UnitsSold": 174,
+      "TotalRevenue": 565.5
+    },
+    {
+      "ProductID": "P108",
+      "ProductName": "Chocolate Muffin",
+      "Category": "Food",
+      "UnitsSold": 165,
+      "TotalRevenue": 486.75
+    }
+  ],
+  "TopRevenueProducts": [
+    {
+      "ProductID": "P107",
+      "ProductName": "Chicken Baguette",
+      "Category": "Food",
+      "UnitsSold": 264,
+      "TotalRevenue": 1650.0
+    },
+    {
+      "ProductID": "P102",
+      "ProductName": "Latte",
+      "Category": "Drinks",
+      "UnitsSold": 447,
+      "TotalRevenue": 1564.5
+    },
+    {
+      "ProductID": "P105",
+      "ProductName": "Cappuccino",
+      "Category": "Drinks",
+      "UnitsSold": 384,
+      "TotalRevenue": 1382.4
+    },
+    {
+      "ProductID": "P101",
+      "ProductName": "Chicken Sandwich",
+      "Category": "Food",
+      "UnitsSold": 236,
+      "TotalRevenue": 1298.0
+    },
+    {
+      "ProductID": "P103",
+      "ProductName": "Tuna Baguette",
+      "Category": "Food",
+      "UnitsSold": 198,
+      "TotalRevenue": 990.0
+    },
+    {
+      "ProductID": "P104",
+      "ProductName": "Croissant",
+      "Category": "Food",
+      "UnitsSold": 348,
+      "TotalRevenue": 957.0
+    },
+    {
+      "ProductID": "P109",
+      "ProductName": "Egg Sandwich",
+      "Category": "Food",
+      "UnitsSold": 210,
+      "TotalRevenue": 945.0
+    },
+    {
+      "ProductID": "P106",
+      "ProductName": "Americano",
+      "Category": "Drinks",
+      "UnitsSold": 276,
+      "TotalRevenue": 828.0
+    },
+    {
+      "ProductID": "P110",
+      "ProductName": "Orange Juice",
+      "Category": "Drinks",
+      "UnitsSold": 174,
+      "TotalRevenue": 565.5
+    },
+    {
+      "ProductID": "P108",
+      "ProductName": "Chocolate Muffin",
+      "Category": "Food",
+      "UnitsSold": 165,
+      "TotalRevenue": 486.75
+    }
+  ],
+  "ShopPerformance": [
+    {
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Transactions": 801,
+      "UnitsSold": 1170,
+      "TotalRevenue": 4607.15
+    },
+    {
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Transactions": 517,
+      "UnitsSold": 784,
+      "TotalRevenue": 3136.15
+    },
+    {
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Transactions": 518,
+      "UnitsSold": 748,
+      "TotalRevenue": 2923.85
+    }
+  ],
+  "DailySales": [
+    {
+      "TransactionDate": "2026-11-16",
+      "Transactions": 894,
+      "UnitsSold": 1316,
+      "TotalRevenue": 5271.5
+    },
+    {
+      "TransactionDate": "2026-11-17",
+      "Transactions": 942,
+      "UnitsSold": 1386,
+      "TotalRevenue": 5395.65
+    }
+  ],
+  "CategoryPerformance": [
+    {
+      "Category": "Food",
+      "UnitsSold": 1421,
+      "TotalRevenue": 6326.75
+    },
+    {
+      "Category": "Drinks",
+      "UnitsSold": 1281,
+      "TotalRevenue": 4340.4
+    }
+  ],
+  "HourlySales": [],
+  "HourlyShopPerformance": [],
+  "TransactionTimeQuality": {
+    "TotalRecords": 1836,
+    "RecordsWithTime": 0,
+    "RecordsWithoutTime": 1836
+  }
+}
