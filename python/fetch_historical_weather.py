@@ -1,56 +1,52 @@
 
 import json
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlencode
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
 # ==========================================
 # HISTORICAL WEATHER DATA PIPELINE
+# Recent + Archived Weather
 # ==========================================
 
 ROOT = Path(__file__).resolve().parent.parent
 
 SALES_FILE = ROOT / "docs" / "sales_data.json"
+OUTPUT_FILE = ROOT / "docs" / "historical_weather.json"
 
-OUTPUT_FILE = (
-    ROOT / "docs" / "historical_weather.json"
-)
-
-API_URL = (
+ARCHIVE_API = (
     "https://archive-api.open-meteo.com/v1/archive"
 )
 
+RECENT_API = (
+    "https://historical-forecast-api.open-meteo.com/v1/forecast"
+)
+
 LOCATIONS = {
-    "Manchester": {
-        "latitude": 53.4808,
-        "longitude": -2.2426
-    },
-    "Birmingham": {
-        "latitude": 52.4862,
-        "longitude": -1.8904
-    },
-    "London": {
-        "latitude": 51.5074,
-        "longitude": -0.1278
-    }
+    "Manchester": (53.4808, -2.2426),
+    "Birmingham": (52.4862, -1.8904),
+    "London": (51.5074, -0.1278)
 }
+
+DAILY_FIELDS = [
+    "temperature_2m_mean",
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_sum",
+    "rain_sum",
+    "weather_code"
+]
 
 
 def load_sales_dates():
-    """Read transaction dates from sales JSON."""
-
-    with SALES_FILE.open(
-        "r", encoding="utf-8"
-    ) as file:
+    with SALES_FILE.open("r", encoding="utf-8") as file:
         sales = json.load(file)
 
     if not isinstance(sales, list):
-        raise ValueError(
-            "sales_data.json must contain a list"
-        )
+        raise ValueError("Sales JSON must be a list")
 
     dates = set()
 
@@ -61,71 +57,59 @@ def load_sales_dates():
             continue
 
         try:
-            parsed = date.fromisoformat(value)
-            dates.add(parsed)
+            dates.add(date.fromisoformat(value))
         except (ValueError, TypeError):
             print(f"Skipping invalid date: {value}")
 
     return sorted(dates)
 
 
-def fetch_weather(city, start_date, end_date):
-    """Retrieve historical daily weather."""
-
-    location = LOCATIONS[city]
+def request_weather(api_url, city, start_date, end_date):
+    latitude, longitude = LOCATIONS[city]
 
     params = {
-        "latitude": location["latitude"],
-        "longitude": location["longitude"],
-        "start_date": start_date,
-        "end_date": end_date,
-        "daily": ",".join([
-            "temperature_2m_mean",
-            "temperature_2m_max",
-            "temperature_2m_min",
-            "precipitation_sum",
-            "rain_sum",
-            "weather_code"
-        ]),
+        "latitude": latitude,
+        "longitude": longitude,
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "daily": ",".join(DAILY_FIELDS),
         "timezone": "Europe/London"
     }
 
-    url = API_URL + "?" + urlencode(params)
+    url = api_url + "?" + urlencode(params)
 
-    print(f"Fetching weather for {city}...")
+    request = Request(
+        url,
+        headers={"User-Agent": "ShopSalesAnalytics/1.0"}
+    )
 
-    with urlopen(url, timeout=45) as response:
+    with urlopen(request, timeout=45) as response:
         return json.load(response)
 
 
-def process_weather(city, response, sales_dates):
-    """Keep weather matching sales dates."""
-
+def process_weather(city, response, wanted_dates, source):
     daily = response.get("daily", {})
 
     dates = daily.get("time", [])
 
-    fields = [
-        "temperature_2m_mean",
-        "temperature_2m_max",
-        "temperature_2m_min",
-        "precipitation_sum",
-        "rain_sum",
-        "weather_code"
-    ]
+    if not dates:
+        raise ValueError(
+            f"No weather dates returned for {city}"
+        )
 
     records = []
 
     for index, day in enumerate(dates):
-        if day not in sales_dates:
+        if day not in wanted_dates:
             continue
 
         record = {
             "city": city,
-            "date": day
+            "date": day,
+            "data_source": source
         }
 
-        for field in fields:
+        for field in DAILY_FIELDS:
             values = daily.get(field, [])
 
             record[field] = (
@@ -141,90 +125,121 @@ def process_weather(city, response, sales_dates):
 
 def main():
     if not SALES_FILE.exists():
-        print("Sales JSON file not found.")
+        print("Sales data file not found.")
         sys.exit(1)
 
     sales_dates = load_sales_dates()
 
     if not sales_dates:
-        print("No valid sales dates available.")
+        print("No valid sales dates found.")
         sys.exit(1)
 
-    today = datetime.now(
-        timezone.utc
-    ).date()
+    today = datetime.now(timezone.utc).date()
 
-    # Archive data may arrive a few days late.
-    # Exclude the most recent 5 days for now.
-    from datetime import timedelta
+    # Archive data can lag behind recent dates.
+    archive_cutoff = today - timedelta(days=5)
 
-    cutoff = today - timedelta(days=5)
-
-    available_dates = [
+    # Only completed days are included.
+    eligible_dates = [
         day for day in sales_dates
-        if day <= cutoff
+        if day < today
     ]
 
-    if not available_dates:
+    if not eligible_dates:
         print(
-            "No sales dates old enough for "
-            "historical weather retrieval."
+            "No completed sales dates yet. "
+            "Preserving existing weather data."
         )
-
-        # Preserve existing output if present.
         return
 
-    start_date = available_dates[0].isoformat()
-    end_date = available_dates[-1].isoformat()
+    archived_dates = [
+        day for day in eligible_dates
+        if day <= archive_cutoff
+    ]
 
-    matching_dates = {
-        day.isoformat()
-        for day in available_dates
-    }
+    recent_dates = [
+        day for day in eligible_dates
+        if day > archive_cutoff
+    ]
 
     all_records = []
 
     for city in LOCATIONS:
-        try:
-            response = fetch_weather(
-                city,
-                start_date,
-                end_date
+        groups = [
+            (
+                "archive",
+                ARCHIVE_API,
+                archived_dates
+            ),
+            (
+                "historical_forecast",
+                RECENT_API,
+                recent_dates
             )
+        ]
 
-            records = process_weather(
-                city,
-                response,
-                matching_dates
-            )
-
-            all_records.extend(records)
+        for source, api_url, dates in groups:
+            if not dates:
+                continue
 
             print(
-                f"{city}: {len(records)} "
-                "matching weather records"
+                f"Fetching {source} weather "
+                f"for {city}..."
             )
 
-        except (
-            HTTPError,
-            URLError,
-            TimeoutError,
-            ValueError
-        ) as error:
-            print(
-                f"Weather retrieval failed "
-                f"for {city}: {error}"
-            )
+            try:
+                response = request_weather(
+                    api_url,
+                    city,
+                    min(dates),
+                    max(dates)
+                )
 
-            # Never publish incomplete output.
-            sys.exit(1)
+                records = process_weather(
+                    city,
+                    response,
+                    {day.isoformat() for day in dates},
+                    source
+                )
+
+                if len(records) != len(dates):
+                    raise ValueError(
+                        f"Incomplete weather dates for {city}"
+                    )
+
+                all_records.extend(records)
+
+                print(
+                    f"{city}: {len(records)} "
+                    f"{source} records retrieved"
+                )
+
+            except (
+                HTTPError,
+                URLError,
+                TimeoutError,
+                ValueError
+            ) as error:
+                print(
+                    f"Failed retrieving {city}: {error}"
+                )
+                print(
+                    "Existing weather JSON preserved."
+                )
+                sys.exit(1)
 
     output = {
-        "source": "Open-Meteo Historical Weather API",
+        "source": "Open-Meteo",
         "last_updated": datetime.now(
             timezone.utc
         ).isoformat(),
-        "weather_records": all_records
+        "weather_records": sorted(
+            all_records,
+            key=lambda row: (
+                row["date"],
+                row["city"]
+            )
+        )
     }
 
     OUTPUT_FILE.parent.mkdir(
@@ -232,11 +247,11 @@ def main():
         exist_ok=True
     )
 
-    temporary_file = OUTPUT_FILE.with_suffix(
+    temp_file = OUTPUT_FILE.with_suffix(
         ".json.tmp"
     )
 
-    with temporary_file.open(
+    with temp_file.open(
         "w", encoding="utf-8"
     ) as file:
         json.dump(
@@ -246,10 +261,10 @@ def main():
             ensure_ascii=False
         )
 
-    temporary_file.replace(OUTPUT_FILE)
+    temp_file.replace(OUTPUT_FILE)
 
     print(
-        f"Saved {len(all_records)} "
+        f"Successfully saved {len(all_records)} "
         "historical weather records."
     )
 
