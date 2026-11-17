@@ -34,6 +34,7 @@ jobs:
           else
             echo "No historical sales JSON found"
           fi
+
       - name: Import historical sales into SQLite
         working-directory: python
         run: python restore_sales.py
@@ -50,18 +51,27 @@ jobs:
         working-directory: python
         run: python export_data.py
 
-      - name: Update dashboard JSON
+      - name: Update dashboard JSON files
         run: |
           cp python/sales_data.json docs/sales_data.json
+          cp python/sales_analytics.json docs/sales_analytics.json
+
+      - name: Validate exported JSON files
+        run: |
+          python -m json.tool docs/sales_data.json > /dev/null
+          python -m json.tool docs/sales_analytics.json > /dev/null
+          echo "Both JSON files are valid"
 
       - name: Commit updated dashboard data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/sales_data.json
+
+          git add docs/sales_data.json docs/sales_analytics.json
+
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Automated daily sales update"
+            git commit -m "Automated daily sales and analytics update"
             git push
           fi
