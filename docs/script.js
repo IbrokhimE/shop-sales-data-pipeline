@@ -1798,3 +1798,128 @@ async function loadWeatherInsights() {
 
 // Load weather independently of sales data.
 loadWeatherInsights();
+
+// ==========================================
+// LOCAL EVENTS INTEGRATION
+// ==========================================
+
+async function loadLocalEvents() {
+  const container = document.getElementById("localEvents");
+
+  if (!container) return;
+
+  container.textContent = "Loading local events...";
+
+  try {
+    const response = await fetch("./local_events.json", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Could not load local events");
+    }
+
+    const data = await response.json();
+
+    container.replaceChildren();
+
+    if (data.status === "pending_api_approval") {
+      const message = document.createElement("p");
+      message.textContent =
+        "Ticketmaster API approval pending. " +
+        "Live event listings will appear here once connected.";
+
+      container.appendChild(message);
+      return;
+    }
+
+    if (!Array.isArray(data.cities)) {
+      throw new Error("Invalid events data");
+    }
+
+    const grid = document.createElement("div");
+    grid.style.display = "grid";
+    grid.style.gridTemplateColumns =
+      "repeat(auto-fit, minmax(220px, 1fr))";
+    grid.style.gap = "16px";
+
+    data.cities.forEach(cityData => {
+      const card = document.createElement("div");
+
+      card.style.padding = "20px";
+      card.style.border = "1px solid #dce5ef";
+      card.style.borderRadius = "12px";
+      card.style.background = "#f8fafc";
+
+      const heading = document.createElement("h4");
+      heading.textContent = cityData.city;
+      card.appendChild(heading);
+
+      const events = Array.isArray(cityData.events)
+        ? cityData.events
+        : [];
+
+      if (!events.length) {
+        const empty = document.createElement("p");
+        empty.textContent =
+          "No event listings available yet.";
+        card.appendChild(empty);
+      }
+
+      events.slice(0, 5).forEach(event => {
+        const item = document.createElement("div");
+        item.style.marginTop = "14px";
+        item.style.paddingTop = "12px";
+        item.style.borderTop = "1px solid #dce5ef";
+
+        const name = document.createElement("strong");
+        name.textContent = event.name || "Unnamed event";
+
+        const details = document.createElement("p");
+        details.textContent = [
+          event.date,
+          event.venue,
+          event.category
+        ].filter(Boolean).join(" | ");
+
+        item.append(name, details);
+
+        if (
+          typeof event.url === "string" &&
+          /^https:\/\//.test(event.url)
+        ) {
+          const link = document.createElement("a");
+          link.href = event.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "View event";
+          item.appendChild(link);
+        }
+
+        card.appendChild(item);
+      });
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+
+    if (data.last_updated) {
+      const updated = document.createElement("p");
+      updated.style.marginTop = "12px";
+      updated.style.fontSize = "12px";
+      updated.textContent =
+        `Events last updated: ${data.last_updated}`;
+      container.appendChild(updated);
+    }
+
+  } catch (error) {
+    console.error("Local events error:", error);
+
+    container.textContent =
+      "Local events are temporarily unavailable.";
+  }
+}
+
+// Load events independently of sales and weather.
+loadLocalEvents();
