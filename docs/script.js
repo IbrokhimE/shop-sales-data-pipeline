@@ -1687,13 +1687,14 @@ async function fetchCityWeather(city) {
   const params = new URLSearchParams({
     latitude: city.latitude,
     longitude: city.longitude,
-    current: [
-      "temperature_2m",
-      "relative_humidity_2m",
-      "precipitation",
-      "weather_code",
-      "wind_speed_10m"
-    ].join(","),
+    daily: [
+  "temperature_2m_mean",
+  "temperature_2m_max",
+  "temperature_2m_min",
+  "precipitation_sum",
+  "weather_code"
+].join(","),
+forecast_days: "1",
     timezone: "Europe/London"
   });
 
@@ -1709,17 +1710,30 @@ async function fetchCityWeather(city) {
 
   const data = await response.json();
 
-  if (!data.current) {
-    throw new Error(
-      `No weather data returned for ${city.name}`
-    );
-  }
-
-  return {
-    city: city.name,
-    ...data.current
-  };
+  
+if (!data.daily || !data.daily.time?.length) {
+  throw new Error(
+    `No daily weather data returned for ${city.name}`
+  );
 }
+
+return {
+  city: city.name,
+  date: data.daily.time[0],
+  temperature_2m_mean:
+    data.daily.temperature_2m_mean?.[0] ?? null,
+  temperature_2m_max:
+    data.daily.temperature_2m_max?.[0] ?? null,
+  temperature_2m_min:
+    data.daily.temperature_2m_min?.[0] ?? null,
+  precipitation_sum:
+    data.daily.precipitation_sum?.[0] ?? null,
+  weather_code:
+    data.daily.weather_code?.[0] ?? null
+};
+
+}
+
 
 async function loadWeatherInsights() {
   const container = document.getElementById(
@@ -1728,7 +1742,7 @@ async function loadWeatherInsights() {
 
   if (!container) return;
 
-  container.textContent = "Loading current weather...";
+  container.textContent = "Loading today's weather forecast...";
 
   const results = await Promise.allSettled(
     WEATHER_LOCATIONS.map(fetchCityWeather)
@@ -1739,52 +1753,79 @@ async function loadWeatherInsights() {
   const grid = document.createElement("div");
   grid.style.display = "grid";
   grid.style.gridTemplateColumns =
-    "repeat(auto-fit, minmax(220px, 1fr))";
-  grid.style.gap = "16px";
+    "repeat(auto-fit, minmax(240px, 1fr))";
+  grid.style.gap = "20px";
+
+  function formatTemperature(value) {
+    return value === null || value === undefined
+      ? "N/A"
+      : `${Number(value).toFixed(1)}°C`;
+  }
+
+  function formatRainfall(value) {
+    return value === null || value === undefined
+      ? "N/A"
+      : `${Number(value).toFixed(1)} mm`;
+  }
 
   results.forEach((result, index) => {
     const card = document.createElement("div");
 
-    card.style.padding = "20px";
+    card.style.padding = "24px";
     card.style.border = "1px solid #dce5ef";
-    card.style.borderRadius = "12px";
-    card.style.background = "#f8fafc";
+    card.style.borderRadius = "14px";
+    card.style.background = "#f4f8fc";
 
-    const heading = document.createElement("h4");
+    const heading = document.createElement("h3");
     heading.textContent = WEATHER_LOCATIONS[index].name;
     card.appendChild(heading);
 
     if (result.status === "rejected") {
       const error = document.createElement("p");
-      error.textContent = "Weather currently unavailable.";
+      error.textContent = "Daily weather forecast unavailable.";
       card.appendChild(error);
     } else {
       const weather = result.value;
 
+      const date = document.createElement("p");
+      date.textContent = `Daily forecast: ${weather.date}`;
+      date.style.color = "#64748b";
+
       const condition = document.createElement("p");
+      condition.style.fontSize = "18px";
       condition.textContent =
         `${getWeatherIcon(weather.weather_code)} ` +
         `${getWeatherDescription(weather.weather_code)}`;
 
-      const temperature = document.createElement("h2");
-      temperature.textContent =
-        `${weather.temperature_2m}°C`;
+      const average = document.createElement("div");
+      average.style.margin = "20px 0";
 
-      const details = document.createElement("p");
-      details.textContent =
-        `Humidity: ${weather.relative_humidity_2m}% | ` +
-        `Precipitation: ${weather.precipitation} mm | ` +
-        `Wind: ${weather.wind_speed_10m} km/h`;
+      const averageLabel = document.createElement("p");
+      averageLabel.textContent = "Average Temperature";
 
-      const updated = document.createElement("small");
-      updated.textContent =
-        `Weather model time: ${weather.time} (UK local time)`;
+      const averageValue = document.createElement("h2");
+      averageValue.textContent = formatTemperature(
+        weather.temperature_2m_mean
+      );
+
+      average.append(averageLabel, averageValue);
+
+      const highLow = document.createElement("p");
+      highLow.textContent =
+        `High: ${formatTemperature(weather.temperature_2m_max)} | ` +
+        `Low: ${formatTemperature(weather.temperature_2m_min)}`;
+
+      const rainfall = document.createElement("p");
+      rainfall.textContent =
+        `Expected Daily Precipitation: ` +
+        formatRainfall(weather.precipitation_sum);
 
       card.append(
+        date,
         condition,
-        temperature,
-        details,
-        updated
+        average,
+        highLow,
+        rainfall
       );
     }
 
@@ -1794,14 +1835,17 @@ async function loadWeatherInsights() {
   container.appendChild(grid);
 
   const source = document.createElement("p");
-  source.style.marginTop = "12px";
+  source.style.marginTop = "16px";
   source.style.fontSize = "12px";
+  source.style.color = "#64748b";
   source.textContent =
-    "Source: Open-Meteo. Current model-based weather; " +
-    "not historical weather for the selected sales period.";
+    "Source: Open-Meteo. Full-day weather forecasts " +
+    "for the current date in UK local time. " +
+    "Forecast values may change as weather models update.";
 
   container.appendChild(source);
 }
+
 
 // Load weather independently of sales data.
 loadWeatherInsights();
