@@ -2140,20 +2140,29 @@ function renderHistoricalWeatherSales() {
     });
   }
 
-function renderTemperatureScatterChart(rows) {
+function renderWeatherScatterChart(rows, type = "temperature") {
   const container = document.getElementById(
-    "temperatureSalesChart"
+    type === "temperature"
+  ? "temperatureSalesChart"
+  : "rainfallSalesChart"
   );
 
   if (!container) return;
 
   container.replaceChildren();
 
-  const valid = rows.filter(row =>
-    row.temperature !== null &&
-    Number.isFinite(Number(row.temperature)) &&
-    Number.isFinite(Number(row.revenue))
-  );
+  
+const field = type === "temperature"
+  ? "temperature"
+  : "rainfall";
+
+const valid = rows.filter(row =>
+  row[field] !== null &&
+  row[field] !== undefined &&
+  Number.isFinite(Number(row[field])) &&
+  Number.isFinite(Number(row.revenue))
+);
+
 
   if (!valid.length) {
     container.textContent = "No matching data available.";
@@ -2170,16 +2179,16 @@ function renderTemperatureScatterChart(rows) {
   const chartW = width - left - right;
   const chartH = height - top - bottom;
 
-  const temperatures = valid.map(row =>
-    Number(row.temperature)
-  );
+  const values = valid.map(row =>
+  Number(row[field])
+);
 
   const revenues = valid.map(row =>
     Number(row.revenue)
   );
 
-  const minTemp = Math.min(...temperatures) - 1;
-  const maxTemp = Math.max(...temperatures) + 1;
+  const minTemp = Math.min(...values) - 1;
+  const maxTemp = Math.max(...values) + 1;
   const maxRevenue = Math.max(...revenues, 1) * 1.15;
 
   const xScale = value =>
@@ -2253,7 +2262,8 @@ function renderTemperatureScatterChart(rows) {
       "text-anchor": "middle",
       fill: "#64748b",
       "font-size": 12
-    }, temperature.toFixed(1) + "°");
+    }, temperature.toFixed(1) +
+  (type === "temperature" ? "°" : " mm"));
   }
 
   // Axis titles.
@@ -2263,7 +2273,9 @@ function renderTemperatureScatterChart(rows) {
     "text-anchor": "middle",
     fill: "#334155",
     "font-size": 14
-  }, "Average Temperature (°C)");
+  }, type === "temperature"
+  ? "Average Temperature (°C)"
+  : "Daily Precipitation (mm)");
 
   add("text", {
     x: 18,
@@ -2281,7 +2293,7 @@ function renderTemperatureScatterChart(rows) {
   };
 
   valid.forEach(row => {
-    const x = xScale(Number(row.temperature));
+    const x = xScale(Number(row[field]));
     const y = yScale(Number(row.revenue));
 
     const circle = add("circle", {
@@ -2294,10 +2306,14 @@ function renderTemperatureScatterChart(rows) {
       tabindex: 0
     });
 
-    const details =
-      `${row.city} | ${row.date}\n` +
-      `Temperature: ${Number(row.temperature).toFixed(1)}°C\n` +
-      `Revenue: ${money(row.revenue)}`;
+    
+const details =
+  `${row.city} | ${row.date}\n` +
+  `${type === "temperature" ? "Temperature" : "Precipitation"}: ` +
+  `${Number(row[field]).toFixed(1)}` +
+  `${type === "temperature" ? "°C" : " mm"}\n` +
+  `Revenue: ${money(row.revenue)}`;
+
 
     add("title", {}, details, circle);
 
@@ -2313,13 +2329,8 @@ function renderTemperatureScatterChart(rows) {
   container.appendChild(svg);
 }
 
-  renderTemperatureScatterChart(rows);
-
-  renderComparison(
-    "rainfallSalesChart",
-    "rainfall",
-    "mm"
-  );
+  renderWeatherScatterChart(rows, "temperature");
+  renderWeatherScatterChart(rows, "rainfall");
 
   const tbody = document.getElementById(
     "weatherSalesTable"
