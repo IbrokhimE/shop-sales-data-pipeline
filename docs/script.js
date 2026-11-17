@@ -1627,3 +1627,174 @@ resetBtn.addEventListener("click", () => {
 // ==========================================
 
 loadSalesData();
+
+// ==========================================
+// LIVE WEATHER INTEGRATION
+// Source: Open-Meteo
+// ==========================================
+
+const WEATHER_LOCATIONS = [
+  {
+    name: "Manchester",
+    latitude: 53.4808,
+    longitude: -2.2426
+  },
+  {
+    name: "Birmingham",
+    latitude: 52.4862,
+    longitude: -1.8904
+  },
+  {
+    name: "London",
+    latitude: 51.5074,
+    longitude: -0.1278
+  }
+];
+
+function getWeatherDescription(code) {
+  if (code === 0) return "Clear sky";
+  if ([1, 2, 3].includes(code)) return "Partly cloudy";
+  if ([45, 48].includes(code)) return "Foggy";
+  if ([51, 53, 55, 56, 57].includes(code)) return "Drizzle";
+  if ([61, 63, 65, 66, 67].includes(code)) return "Rain";
+  if ([71, 73, 75, 77].includes(code)) return "Snow";
+  if ([80, 81, 82].includes(code)) return "Rain showers";
+  if ([85, 86].includes(code)) return "Snow showers";
+  if ([95, 96, 99].includes(code)) return "Thunderstorm";
+
+  return "Unknown conditions";
+}
+
+function getWeatherIcon(code) {
+  if (code === 0) return "☀️";
+  if ([1, 2, 3].includes(code)) return "⛅";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄️";
+  if ([95, 96, 99].includes(code)) return "⛈️";
+  if (code >= 51 && code <= 82) return "🌧️";
+
+  return "🌤️";
+}
+
+async function fetchCityWeather(city) {
+  const params = new URLSearchParams({
+    latitude: city.latitude,
+    longitude: city.longitude,
+    current: [
+      "temperature_2m",
+      "relative_humidity_2m",
+      "precipitation",
+      "weather_code",
+      "wind_speed_10m"
+    ].join(","),
+    timezone: "Europe/London"
+  });
+
+  const response = await fetch(
+    `https://api.open-meteo.com/v1/forecast?${params}`
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Weather request failed for ${city.name}`
+    );
+  }
+
+  const data = await response.json();
+
+  if (!data.current) {
+    throw new Error(
+      `No weather data returned for ${city.name}`
+    );
+  }
+
+  return {
+    city: city.name,
+    ...data.current
+  };
+}
+
+async function loadWeatherInsights() {
+  const container = document.getElementById(
+    "weatherInsights"
+  );
+
+  if (!container) return;
+
+  container.textContent = "Loading current weather...";
+
+  const results = await Promise.allSettled(
+    WEATHER_LOCATIONS.map(fetchCityWeather)
+  );
+
+  container.replaceChildren();
+
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns =
+    "repeat(auto-fit, minmax(220px, 1fr))";
+  grid.style.gap = "16px";
+
+  results.forEach((result, index) => {
+    const card = document.createElement("div");
+
+    card.style.padding = "20px";
+    card.style.border = "1px solid #dce5ef";
+    card.style.borderRadius = "12px";
+    card.style.background = "#f8fafc";
+
+    const heading = document.createElement("h4");
+    heading.textContent = WEATHER_LOCATIONS[index].name;
+    card.appendChild(heading);
+
+    if (result.status === "rejected") {
+      const error = document.createElement("p");
+      error.textContent = "Weather currently unavailable.";
+      card.appendChild(error);
+    } else {
+      const weather = result.value;
+
+      const condition = document.createElement("p");
+      condition.textContent =
+        `${getWeatherIcon(weather.weather_code)} ` +
+        `${getWeatherDescription(weather.weather_code)}`;
+
+      const temperature = document.createElement("h2");
+      temperature.textContent =
+        `${weather.temperature_2m}°C`;
+
+      const details = document.createElement("p");
+      details.textContent =
+        `Humidity: ${weather.relative_humidity_2m}% | ` +
+        `Precipitation: ${weather.precipitation} mm | ` +
+        `Wind: ${weather.wind_speed_10m} km/h`;
+
+      const updated = document.createElement("small");
+      updated.textContent =
+        `Weather model time: ${weather.time} (UK local time)`;
+
+      card.append(
+        condition,
+        temperature,
+        details,
+        updated
+      );
+    }
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+
+  const source = document.createElement("p");
+  source.style.marginTop = "12px";
+  source.style.fontSize = "12px";
+  source.textContent =
+    "Source: Open-Meteo. Current model-based weather; " +
+    "not historical weather for the selected sales period.";
+
+  container.appendChild(source);
+}
+
+// Load weather independently of sales data.
+loadWeatherInsights();
