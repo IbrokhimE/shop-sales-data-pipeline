@@ -1923,3 +1923,271 @@ async function loadLocalEvents() {
 
 // Load events independently of sales and weather.
 loadLocalEvents();
+
+
+
+ // ==========================================
+ // HISTORICAL WEATHER VS SALES ANALYSIS
+ // ==========================================
+
+let historicalWeatherData = [];
+
+async function loadHistoricalWeather() {
+  const status = document.getElementById(
+    "weatherSalesStatus"
+  );
+
+  try {
+    const response = await fetch(
+      "./historical_weather.json",
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Historical weather unavailable");
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data.weather_records)) {
+      throw new Error("Invalid historical weather data");
+    }
+
+    historicalWeatherData = data.weather_records;
+
+    renderHistoricalWeatherSales();
+
+  } catch (error) {
+    console.error("Historical weather error:", error);
+
+    if (status) {
+      status.textContent =
+        "Historical weather data is unavailable.";
+    }
+  }
+}
+
+function getHistoricalWeatherSalesRows() {
+  const sales = getFilteredSales();
+
+  // Aggregate selected sales by city and date.
+  const totals = new Map();
+
+  sales.forEach(row => {
+    const shop = String(row.ShopName || "");
+    const city = ["Manchester", "Birmingham", "London"]
+      .find(name => shop.toLowerCase().includes(
+        name.toLowerCase()
+      ));
+
+    if (!city) return;
+
+    const key = `${city}|${row.TransactionDate}`;
+
+    if (!totals.has(key)) {
+      totals.set(key, {
+        city,
+        date: row.TransactionDate,
+        revenue: 0,
+        transactions: 0
+      });
+    }
+
+    const item = totals.get(key);
+
+    item.revenue += Number(row.SalesAmount || 0);
+    item.transactions += 1;
+  });
+
+  // Join weather to sales using city + date.
+  return historicalWeatherData
+    .filter(weather =>
+      weather &&
+      typeof weather.city === "string" &&
+      typeof weather.date === "string"
+    )
+    .map(weather => {
+      const key = `${weather.city}|${weather.date}`;
+      const sale = totals.get(key);
+
+      if (!sale) return null;
+
+      return {
+        ...sale,
+        temperature: weather.temperature_2m_mean,
+        rainfall: weather.precipitation_sum
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) =>
+      b.date.localeCompare(a.date) ||
+      a.city.localeCompare(b.city)
+    );
+}
+
+function renderHistoricalWeatherSales() {
+  const status = document.getElementById(
+    "weatherSalesStatus"
+  );
+
+  const rows = getHistoricalWeatherSalesRows();
+
+  const temperatures = rows
+    .map(row => row.temperature)
+    .filter(value => value !== null &&
+      Number.isFinite(Number(value)))
+    .map(Number);
+
+  const rainfallRows = rows.filter(row =>
+    row.rainfall !== null &&
+    Number.isFinite(Number(row.rainfall))
+  );
+
+  const averageTemp = temperatures.length
+    ? temperatures.reduce((a, b) => a + b, 0) /
+      temperatures.length
+    : null;
+
+  const totalRainfall = rainfallRows.reduce(
+    (sum, row) => sum + Number(row.rainfall),
+    0
+  );
+
+  const rainySales = rainfallRows
+    .filter(row => Number(row.rainfall) > 0)
+    .reduce((sum, row) => sum + row.revenue, 0);
+
+  setText(
+    "historicalAvgTemp",
+    averageTemp === null
+      ? "N/A"
+      : `${averageTemp.toFixed(1)}°C`
+  );
+
+  setText(
+    "historicalRainfall",
+    rainfallRows.length
+      ? `${totalRainfall.toFixed(1)} mm`
+      : "N/A"
+  );
+
+  setText("rainyDaySales", money(rainySales));
+  setText("matchedWeatherDays", numberFormat(rows.length));
+
+  if (status) {
+    status.textContent = rows.length
+      ? `${rows.length} matched city-day records. ` +
+        "Sales are simulated; weather is sourced from Open-Meteo."
+      : "No matching historical weather and sales records " +
+        "for the selected filters.";
+  }
+
+  function renderComparison(elementId, field, unit) {
+    const container = document.getElementById(elementId);
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const valid = rows.filter(row =>
+      row[field] !== null &&
+      Number.isFinite(Number(row[field]))
+    );
+
+    if (!valid.length) {
+      container.textContent = "No matching data available.";
+      return;
+    }
+
+    const maximum = Math.max(
+      ...valid.map(row => row.revenue), 1
+    );
+
+    valid.forEach(row => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "bar-row";
+
+      const label = document.createElement("div");
+      label.className = "bar-label";
+
+      const description = document.createElement("span");
+      description.textContent =
+        `${row.city} | ${row.date} | ` +
+        `${Number(row[field]).toFixed(1)} ${unit}`;
+
+      const amount = document.createElement("strong");
+      amount.textContent = money(row.revenue);
+
+      label.append(description, amount);
+
+      const track = document.createElement("div");
+      track.className = "bar-track";
+
+      const fill = document.createElement("div");
+      fill.className = "bar-fill";
+      fill.style.width =
+        `${(row.revenue / maximum) * 100}%`;
+
+      track.appendChild(fill);
+      wrapper.append(label, track);
+      container.appendChild(wrapper);
+    });
+  }
+
+  renderComparison(
+    "temperatureSalesChart",
+    "temperature",
+    "°C"
+  );
+
+  renderComparison(
+    "rainfallSalesChart",
+    "rainfall",
+    "mm"
+  );
+
+  const tbody = document.getElementById(
+    "weatherSalesTable"
+  );
+
+  if (!tbody) return;
+
+  tbody.replaceChildren();
+
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.textContent = "No matching records available.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
+
+    const values = [
+      row.date,
+      row.city,
+      row.temperature === null
+        ? "N/A"
+        : `${Number(row.temperature).toFixed(1)}°C`,
+      row.rainfall === null
+        ? "N/A"
+        : `${Number(row.rainfall).toFixed(1)} mm`,
+      money(row.revenue),
+      numberFormat(row.transactions)
+    ];
+
+    values.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// Retrieve weather after the dashboard starts.
+loadHistoricalWeather();
