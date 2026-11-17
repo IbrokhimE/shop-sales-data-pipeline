@@ -22,6 +22,7 @@ try:
         SELECT
             TransactionID,
             TransactionDate,
+            TransactionTime,
             ShopID,
             ShopName,
             ProductID,
@@ -155,7 +156,82 @@ try:
     """).fetchall()
 
     # ======================================
-    # STEP 8: CREATE ANALYTICS JSON
+    # STEP 8: HOURLY SALES PERFORMANCE
+    # ======================================
+
+    hourly_sales = conn.execute("""
+        SELECT
+            TransactionDate,
+            SUBSTR(TransactionTime, 1, 2) AS Hour,
+            COUNT(*) AS Transactions,
+            SUM(Quantity) AS UnitsSold,
+            ROUND(
+                SUM(SalesAmount), 2
+            ) AS TotalRevenue,
+            ROUND(
+                AVG(SalesAmount), 2
+            ) AS AverageTransactionValue
+        FROM CleanSales
+        WHERE TransactionTime IS NOT NULL
+        GROUP BY
+            TransactionDate,
+            SUBSTR(TransactionTime, 1, 2)
+        ORDER BY TransactionDate, Hour
+    """).fetchall()
+
+    # ======================================
+    # STEP 9: HOURLY PERFORMANCE BY SHOP
+    # ======================================
+
+    hourly_shops = conn.execute("""
+        SELECT
+            TransactionDate,
+            ShopID,
+            ShopName,
+            SUBSTR(TransactionTime, 1, 2) AS Hour,
+            COUNT(*) AS Transactions,
+            ROUND(
+                SUM(SalesAmount), 2
+            ) AS TotalRevenue
+        FROM CleanSales
+        WHERE TransactionTime IS NOT NULL
+        GROUP BY
+            TransactionDate,
+            ShopID,
+            ShopName,
+            SUBSTR(TransactionTime, 1, 2)
+        ORDER BY
+            TransactionDate,
+            ShopName,
+            Hour
+    """).fetchall()
+
+    # ======================================
+    # STEP 10: TRANSACTION TIME QUALITY
+    # ======================================
+
+    time_quality = conn.execute("""
+        SELECT
+            COUNT(*) AS TotalRecords,
+            SUM(
+                CASE
+                    WHEN TransactionTime IS NOT NULL
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS RecordsWithTime,
+            SUM(
+                CASE
+                    WHEN TransactionTime IS NULL
+                    THEN 1
+                    ELSE 0
+                END
+            ) AS RecordsWithoutTime
+        FROM CleanSales
+    """).fetchone()
+
+    # ======================================
+    # STEP 11: CREATE ANALYTICS JSON
     # ======================================
 
     analytics = {
@@ -176,7 +252,14 @@ try:
         ],
         "CategoryPerformance": [
             dict(row) for row in categories
-        ]
+        ],
+        "HourlySales": [
+            dict(row) for row in hourly_sales
+        ],
+        "HourlyShopPerformance": [
+            dict(row) for row in hourly_shops
+        ],
+        "TransactionTimeQuality": dict(time_quality)
     }
 
     with open(
@@ -188,6 +271,8 @@ try:
     print("Best-selling products:", len(best_sellers))
     print("Shops analysed:", len(shops))
     print("Daily sales periods:", len(daily_sales))
+    print("Hourly sales periods:", len(hourly_sales))
+    print("Hourly shop records:", len(hourly_shops))
 
     print("\n" + "=" * 55)
     print("EXPORT COMPLETED SUCCESSFULLY")
