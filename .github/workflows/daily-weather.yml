@@ -1,0 +1,55 @@
+
+name: Daily Historical Weather Update
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "30 7 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: historical-weather-update
+  cancel-in-progress: false
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch historical weather
+        run: python python/fetch_historical_weather.py
+
+      - name: Validate historical weather JSON
+        run: |
+          if [ -f docs/historical_weather.json ]; then
+            python -m json.tool docs/historical_weather.json > /dev/null
+            echo "Historical weather JSON is valid."
+          else
+            echo "No eligible historical weather dates yet."
+          fi
+
+      - name: Commit updated weather data
+        run: |
+          if [ -f docs/historical_weather.json ]; then
+            git add docs/historical_weather.json
+
+            if ! git diff --cached --quiet; then
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git commit -m "Update historical weather data"
+              git push
+            else
+              echo "No weather changes to commit."
+            fi
+          fi
