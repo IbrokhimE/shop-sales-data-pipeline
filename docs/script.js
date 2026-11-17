@@ -1,16 +1,100 @@
 
+"use strict";
+
+// ==========================================
+// SHOP SALES ANALYTICS DASHBOARD
+// PART 1: SETUP AND DATA LOADING
+// ==========================================
+
 let salesData = [];
 
-const shopFilter = document.getElementById("shopFilter");
-const productFilter = document.getElementById("productFilter");
-const periodFilter = document.getElementById("periodFilter");
-const dateFilter = document.getElementById("dateFilter");
-const weekFilter = document.getElementById("weekFilter");
-const dateFilterLabel = document.getElementById("dateFilterLabel");
-const weekFilterLabel = document.getElementById("weekFilterLabel");
-const resetBtn = document.getElementById("resetBtn");
+// ==========================================
+// DASHBOARD FILTERS
+// ==========================================
 
-const money = n => "£" + Number(n || 0).toFixed(2);
+const shopFilter =
+  document.getElementById("shopFilter");
+
+const productFilter =
+  document.getElementById("productFilter");
+
+const periodFilter =
+  document.getElementById("periodFilter");
+
+const dateFilter =
+  document.getElementById("dateFilter");
+
+const weekFilter =
+  document.getElementById("weekFilter");
+
+const monthFilter =
+  document.getElementById("monthFilter");
+
+const dateFilterLabel =
+  document.getElementById("dateFilterLabel");
+
+const weekFilterLabel =
+  document.getElementById("weekFilterLabel");
+
+const monthFilterLabel =
+  document.getElementById("monthFilterLabel");
+
+const resetBtn =
+  document.getElementById("resetBtn");
+
+// ==========================================
+// FINANCIAL ASSUMPTIONS
+// ALL COSTS ARE SIMULATED ESTIMATES
+// ==========================================
+
+const FINANCIAL_CONFIG = {
+  // Estimated product costs as a share of sales.
+  foodCostRate: 0.38,
+  drinksCostRate: 0.25,
+
+  // Estimated waste as a share of revenue.
+  wasteRate: 0.03,
+
+  // Estimated hourly employment cost.
+  hourlyLabourCost: 15.50,
+
+  // Estimated labour hours per shop per day.
+  labourHoursPerShopDay: 32,
+
+  // Estimated other operating expenses
+  // per shop per day.
+  otherExpensesPerShopDay: 120
+};
+
+// ==========================================
+// FORMATTING UTILITIES
+// ==========================================
+
+function money(value) {
+  return "£" + Number(value || 0).toLocaleString(
+    "en-GB",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
+}
+
+function percentage(value) {
+  return Number(value || 0).toFixed(1) + "%";
+}
+
+function numberFormat(value) {
+  return Number(value || 0).toLocaleString("en-GB");
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.textContent = value;
+  }
+}
 
 // ==========================================
 // DATE AND WEEK UTILITIES
@@ -18,15 +102,27 @@ const money = n => "£" + Number(n || 0).toFixed(2);
 
 function todayISO() {
   const now = new Date();
+
   const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+
+  const month = String(
+    now.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    now.getDate()
+  ).padStart(2, "0");
+
   return `${year}-${month}-${day}`;
 }
 
 function parseDate(value) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day));
+  const [year, month, day] =
+    value.split("-").map(Number);
+
+  return new Date(
+    Date.UTC(year, month - 1, day)
+  );
 }
 
 function formatDate(date) {
@@ -35,21 +131,33 @@ function formatDate(date) {
 
 function getWeekStart(dateText) {
   const date = parseDate(dateText);
+
   const weekday = date.getUTCDay();
+
   const offset = (weekday + 6) % 7;
 
-  date.setUTCDate(date.getUTCDate() - offset);
+  date.setUTCDate(
+    date.getUTCDate() - offset
+  );
+
   return formatDate(date);
 }
 
 function getISOWeek(dateText) {
   const date = parseDate(dateText);
+
   const weekday = date.getUTCDay() || 7;
 
-  date.setUTCDate(date.getUTCDate() + 4 - weekday);
+  date.setUTCDate(
+    date.getUTCDate() + 4 - weekday
+  );
 
   const year = date.getUTCFullYear();
-  const firstDay = new Date(Date.UTC(year, 0, 1));
+
+  const firstDay = new Date(
+    Date.UTC(year, 0, 1)
+  );
+
   const week = Math.ceil(
     (((date - firstDay) / 86400000) + 1) / 7
   );
@@ -58,17 +166,31 @@ function getISOWeek(dateText) {
 }
 
 function weekStartFromInput(value) {
-  if (!/^\d{4}-W\d{2}$/.test(value)) return "";
+  if (!/^\d{4}-W\d{2}$/.test(value)) {
+    return "";
+  }
 
-  const [year, week] = value.split("-W").map(Number);
-  const jan4 = new Date(Date.UTC(year, 0, 4));
+  const [year, week] =
+    value.split("-W").map(Number);
+
+  const jan4 = new Date(
+    Date.UTC(year, 0, 4)
+  );
+
   const weekday = jan4.getUTCDay() || 7;
 
   jan4.setUTCDate(
-    jan4.getUTCDate() - weekday + 1 + (week - 1) * 7
+    jan4.getUTCDate() -
+    weekday +
+    1 +
+    (week - 1) * 7
   );
 
   return formatDate(jan4);
+}
+
+function getMonthFromDate(dateText) {
+  return dateText.slice(0, 7);
 }
 
 // ==========================================
@@ -77,25 +199,41 @@ function weekStartFromInput(value) {
 
 async function loadSalesData() {
   try {
-    const response = await fetch("./sales_data.json", {
-      cache: "no-store"
-    });
+    const response = await fetch(
+      "./sales_data.json",
+      {
+        cache: "no-store"
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Failed to load sales data");
+      throw new Error(
+        "Failed to load sales data"
+      );
     }
 
     const data = await response.json();
 
     if (!Array.isArray(data)) {
-      throw new Error("Invalid sales data format");
+      throw new Error(
+        "Invalid sales data format"
+      );
     }
 
     salesData = data.map(row => ({
       ...row,
-      Quantity: Number(row.Quantity),
-      UnitPrice: Number(row.UnitPrice),
-      SalesAmount: Number(row.SalesAmount)
+
+      Quantity:
+        Number(row.Quantity),
+
+      UnitPrice:
+        Number(row.UnitPrice),
+
+      SalesAmount:
+        Number(row.SalesAmount),
+
+      TransactionTime:
+        row.TransactionTime || null
     }));
 
     populateFilter(
@@ -108,106 +246,315 @@ async function loadSalesData() {
       salesData.map(row => row.ProductName)
     );
 
-    // Default to today's date.
-    dateFilter.value = todayISO();
-    weekFilter.value = getISOWeek(todayISO());
+    const today = todayISO();
+
+    dateFilter.value = today;
+
+    weekFilter.value =
+      getISOWeek(today);
+
+    monthFilter.value =
+      today.slice(0, 7);
+
     periodFilter.value = "daily";
 
     updatePeriodControls();
     updateDashboard();
 
-    console.log("Loaded transactions:", salesData.length);
+    console.log(
+      "Loaded transactions:",
+      salesData.length
+    );
 
   } catch (error) {
-    console.error("Dashboard loading error:", error);
-    document.getElementById("totalSales").textContent =
-      "Data unavailable";
+    console.error(
+      "Dashboard loading error:",
+      error
+    );
+
+    setText(
+      "totalSales",
+      "Data unavailable"
+    );
   }
 }
 
 // ==========================================
-// FILTERS
+// PART 2: FILTERS AND SALES AGGREGATION
 // ==========================================
 
+// Populate shop and product dropdowns.
 function populateFilter(element, values) {
-  const unique = [...new Set(values.filter(Boolean))].sort();
+  if (!element) return;
+
+  const unique = [
+    ...new Set(values.filter(Boolean))
+  ].sort();
 
   unique.forEach(value => {
     const option = document.createElement("option");
+
     option.value = value;
     option.textContent = value;
+
     element.appendChild(option);
   });
 }
 
+// Show the correct date selector.
 function updatePeriodControls() {
-  const isDaily = periodFilter.value === "daily";
-
-  dateFilterLabel.style.display = isDaily ? "" : "none";
-  weekFilterLabel.style.display = isDaily ? "none" : "";
-}
-
-function getFilteredSales() {
-  const shop = shopFilter.value;
-  const product = productFilter.value;
   const period = periodFilter.value;
 
-  const selectedDate = dateFilter.value;
-  const selectedWeek = weekStartFromInput(weekFilter.value);
+  dateFilterLabel.style.display =
+    period === "daily" ? "" : "none";
+
+  weekFilterLabel.style.display =
+    period === "weekly" ? "" : "none";
+
+  monthFilterLabel.style.display =
+    period === "monthly" ? "" : "none";
+
+  // Show the weekly breakdown only
+  // when Weekly Sales is selected.
+  const weeklySection = document.getElementById(
+    "weeklyBreakdownSection"
+  );
+
+  if (weeklySection) {
+    weeklySection.style.display =
+      period === "weekly" ? "" : "none";
+  }
+}
+
+// Get the selected reporting period.
+function getSelectedPeriod() {
+  const period = periodFilter.value;
+
+  if (period === "daily") {
+    return {
+      type: "daily",
+      start: dateFilter.value,
+      end: dateFilter.value
+    };
+  }
+
+  if (period === "weekly") {
+    const start = weekStartFromInput(
+      weekFilter.value
+    );
+
+    if (!start) {
+      return {
+        type: "weekly",
+        start: "",
+        end: ""
+      };
+    }
+
+    const endDate = parseDate(start);
+
+    endDate.setUTCDate(
+      endDate.getUTCDate() + 6
+    );
+
+    return {
+      type: "weekly",
+      start,
+      end: formatDate(endDate)
+    };
+  }
+
+  if (period === "monthly") {
+    const month = monthFilter.value;
+
+    if (!/^\d{4}-\d{2}$/.test(month)) {
+      return {
+        type: "monthly",
+        start: "",
+        end: ""
+      };
+    }
+
+    const [year, monthNumber] =
+      month.split("-").map(Number);
+
+    const lastDay = new Date(
+      Date.UTC(year, monthNumber, 0)
+    );
+
+    return {
+      type: "monthly",
+      start: `${month}-01`,
+      end: formatDate(lastDay)
+    };
+  }
+
+  return {
+    type: "daily",
+    start: "",
+    end: ""
+  };
+}
+
+// Check whether a transaction belongs
+// to the selected reporting period.
+function isDateInSelectedPeriod(dateText) {
+  const selected = getSelectedPeriod();
+
+  if (!selected.start || !selected.end) {
+    return false;
+  }
+
+  return (
+    dateText >= selected.start &&
+    dateText <= selected.end
+  );
+}
+
+// Filter transactions by period,
+// shop and product.
+function getFilteredSales() {
+  const selectedShop = shopFilter.value;
+  const selectedProduct = productFilter.value;
 
   return salesData.filter(row => {
     const shopMatch =
-      shop === "All" || row.ShopName === shop;
+      selectedShop === "All" ||
+      row.ShopName === selectedShop;
 
     const productMatch =
-      product === "All" || row.ProductName === product;
+      selectedProduct === "All" ||
+      row.ProductName === selectedProduct;
 
-    let dateMatch = false;
+    const dateMatch =
+      isDateInSelectedPeriod(
+        row.TransactionDate
+      );
 
-    if (period === "daily") {
-      dateMatch = row.TransactionDate === selectedDate;
-    } else if (selectedWeek) {
-      dateMatch =
-        getWeekStart(row.TransactionDate) === selectedWeek;
-    }
-
-    return shopMatch && productMatch && dateMatch;
+    return (
+      shopMatch &&
+      productMatch &&
+      dateMatch
+    );
   });
 }
 
-// ==========================================
-// AGGREGATION
-// ==========================================
-
-function aggregate(rows, key, metric = "SalesAmount") {
+// Aggregate sales by a selected field.
+// Examples:
+// ShopName, ProductName, Quantity.
+function aggregate(
+  rows,
+  key,
+  metric = "SalesAmount"
+) {
   const totals = {};
 
   rows.forEach(row => {
     const name = row[key];
+
+    if (!name) return;
+
     totals[name] =
-      (totals[name] || 0) + Number(row[metric] || 0);
+      (totals[name] || 0) +
+      Number(row[metric] || 0);
   });
 
   return Object.entries(totals)
     .sort((a, b) => b[1] - a[1]);
 }
 
+// Calculate revenue for a group of sales.
+function calculateRevenue(rows) {
+  return rows.reduce(
+    (total, row) =>
+      total + Number(row.SalesAmount || 0),
+    0
+  );
+}
+
+// Get the number of transactions.
+function calculateTransactions(rows) {
+  return rows.length;
+}
+
+// Calculate average transaction value.
+function calculateAverageSale(rows) {
+  const transactions =
+    calculateTransactions(rows);
+
+  if (transactions === 0) {
+    return 0;
+  }
+
+  return (
+    calculateRevenue(rows) /
+    transactions
+  );
+}
+
+// Return all dates within a reporting period.
+function getPeriodDates() {
+  const selected = getSelectedPeriod();
+
+  if (!selected.start || !selected.end) {
+    return [];
+  }
+
+  const dates = [];
+  const current = parseDate(selected.start);
+  const end = parseDate(selected.end);
+
+  while (current <= end) {
+    dates.push(formatDate(current));
+
+    current.setUTCDate(
+      current.getUTCDate() + 1
+    );
+  }
+
+  return dates;
+}
+
+// Count days that have reached today's date.
+// Future dates are excluded from estimates.
+function getElapsedPeriodDates() {
+  const today = todayISO();
+
+  return getPeriodDates().filter(
+    date => date <= today
+  );
+}
+
+// ==========================================
+// PART 3: SALES CHARTS AND TABLES
+// ==========================================
+
 // ==========================================
 // BAR CHARTS
 // ==========================================
 
-function renderBars(elementId, entries, options = {}) {
-  const container = document.getElementById(elementId);
+function renderBars(
+  elementId,
+  entries,
+  options = {}
+) {
+  const container =
+    document.getElementById(elementId);
+
   if (!container) return;
 
   container.replaceChildren();
 
   if (!entries.length) {
-    container.textContent = "No sales for selected period";
+    container.textContent =
+      "No sales for selected period";
     return;
   }
 
-  const maximum = Math.max(...entries.map(e => e[1]), 1);
+  const maximum = Math.max(
+    ...entries.map(entry => entry[1]),
+    1
+  );
 
   entries.forEach(([name, amount]) => {
     const row = document.createElement("div");
@@ -220,8 +567,10 @@ function renderBars(elementId, entries, options = {}) {
     nameText.textContent = name;
 
     const amountText = document.createElement("strong");
-    amountText.textContent =
-      options.units ? `${amount} units` : money(amount);
+
+    amountText.textContent = options.units
+      ? `${numberFormat(amount)} units`
+      : money(amount);
 
     label.append(nameText, amountText);
 
@@ -229,126 +578,179 @@ function renderBars(elementId, entries, options = {}) {
     track.className = "bar-track";
 
     const fill = document.createElement("div");
+
     fill.className = options.product
       ? "bar-fill product-bar"
       : "bar-fill";
 
-    fill.style.width = `${amount / maximum * 100}%`;
+    fill.style.width =
+      `${amount / maximum * 100}%`;
 
     track.appendChild(fill);
     row.append(label, track);
+
     container.appendChild(row);
   });
 }
 
 // ==========================================
-// DAILY / WEEKLY TREND CHART
+// DAILY / WEEKLY / MONTHLY SALES TREND
 // ==========================================
 
 function renderDaily(rows) {
-  const container = document.getElementById("dailyChart");
+  const container =
+    document.getElementById("dailyChart");
+
+  if (!container) return;
+
   container.replaceChildren();
 
   const totals = {};
 
   rows.forEach(row => {
     const date = row.TransactionDate;
-    totals[date] = (totals[date] || 0) + row.SalesAmount;
+
+    totals[date] =
+      (totals[date] || 0) +
+      row.SalesAmount;
   });
 
-  let entries;
+  const selected = getSelectedPeriod();
 
-  if (periodFilter.value === "weekly") {
-    const startText = weekStartFromInput(weekFilter.value);
-
-    if (!startText) {
-      container.textContent = "Select a valid week";
-      return;
-    }
-
-    const start = parseDate(startText);
-
-    entries = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(start);
-      date.setUTCDate(start.getUTCDate() + i);
-      const dateText = formatDate(date);
-
-      return [dateText, totals[dateText] || 0];
-    });
-  } else {
-    const date = dateFilter.value;
-    entries = date ? [[date, totals[date] || 0]] : [];
+  if (!selected.start || !selected.end) {
+    container.textContent =
+      "Select a valid reporting period";
+    return;
   }
 
+  const today = todayISO();
+
+  // Show daily totals within the selected period.
+  // Future dates are not plotted as zero sales.
+  const entries = getPeriodDates()
+    .filter(date => date <= today)
+    .map(date => [
+      date,
+      totals[date] || 0
+    ]);
+
   if (!entries.length) {
-    container.textContent = "Select a valid date";
+    container.textContent =
+      "No completed dates in selected period";
     return;
   }
 
   const width = 700;
-  const height = 230;
-  const left = 65;
+  const height = 250;
+
+  const left = 70;
   const right = 25;
   const top = 25;
-  const bottom = 50;
+  const bottom = 55;
 
   const chartW = width - left - right;
   const chartH = height - top - bottom;
 
-  const maximum = Math.max(...entries.map(e => e[1]), 1);
-  const svgNS = "http://www.w3.org/2000/svg";
+  const maximum = Math.max(
+    ...entries.map(entry => entry[1]),
+    1
+  );
 
-  const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  const svgNS =
+    "http://www.w3.org/2000/svg";
+
+  const svg = document.createElementNS(
+    svgNS,
+    "svg"
+  );
+
+  svg.setAttribute(
+    "viewBox",
+    `0 0 ${width} ${height}`
+  );
+
   svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", "Sales by day");
+
+  svg.setAttribute(
+    "aria-label",
+    "Daily sales revenue trend"
+  );
 
   function add(tag, attributes, text) {
-    const el = document.createElementNS(svgNS, tag);
+    const element = document.createElementNS(
+      svgNS,
+      tag
+    );
 
-    Object.entries(attributes).forEach(([key, value]) => {
-      el.setAttribute(key, value);
-    });
+    Object.entries(attributes).forEach(
+      ([key, value]) => {
+        element.setAttribute(key, value);
+      }
+    );
 
-    if (text !== undefined) el.textContent = text;
-    svg.appendChild(el);
-    return el;
+    if (text !== undefined) {
+      element.textContent = text;
+    }
+
+    svg.appendChild(element);
+
+    return element;
   }
 
+  // Horizontal grid lines.
   for (let i = 0; i <= 4; i++) {
     const y = top + chartH * i / 4;
 
     add("line", {
-      x1: left, y1: y,
-      x2: width - right, y2: y,
+      x1: left,
+      y1: y,
+      x2: width - right,
+      y2: y,
       stroke: "#e3eaf2"
     });
 
     add("text", {
-      x: 5, y: y + 4,
+      x: 5,
+      y: y + 4,
       fill: "#64748b",
       "font-size": 12
     }, money(maximum * (4 - i) / 4));
   }
 
-  const points = entries.map(([date, value], i) => {
-    const x = entries.length === 1
-      ? left + chartW / 2
-      : left + i * chartW / (entries.length - 1);
+  const points = entries.map(
+    ([date, value], index) => {
+      const x = entries.length === 1
+        ? left + chartW / 2
+        : left +
+          index * chartW /
+          (entries.length - 1);
 
-    const y = top + chartH - value / maximum * chartH;
+      const y =
+        top +
+        chartH -
+        value / maximum * chartH;
 
-    return { date, value, x, y };
-  });
+      return {
+        date,
+        value,
+        x,
+        y
+      };
+    }
+  );
 
+  // Draw sales trend line.
   add("polyline", {
-    points: points.map(p => `${p.x},${p.y}`).join(" "),
+    points: points
+      .map(point => `${point.x},${point.y}`)
+      .join(" "),
     fill: "none",
     stroke: "#237bb7",
     "stroke-width": 3
   });
 
-  points.forEach(point => {
+  // Show data points and dates.
+  points.forEach((point, index) => {
     add("circle", {
       cx: point.x,
       cy: point.y,
@@ -356,42 +758,67 @@ function renderDaily(rows) {
       fill: "#237bb7"
     });
 
-    add("text", {
-      x: point.x,
-      y: height - 18,
-      "text-anchor": "middle",
-      fill: "#64748b",
-      "font-size": 12
-    }, point.date.slice(5));
+    // Reduce labels for monthly charts.
+    const labelEvery = Math.max(
+      1,
+      Math.ceil(points.length / 8)
+    );
+
+    if (
+      index % labelEvery === 0 ||
+      index === points.length - 1
+    ) {
+      add("text", {
+        x: point.x,
+        y: height - 18,
+        "text-anchor": "middle",
+        fill: "#64748b",
+        "font-size": 12
+      }, point.date.slice(5));
+    }
   });
 
   container.appendChild(svg);
 }
 
 // ==========================================
-// TRANSACTION TABLE
+// SALES TRANSACTION TABLE
 // ==========================================
 
 function renderTable(rows) {
-  const tbody = document.getElementById("salesTable");
+  const tbody =
+    document.getElementById("salesTable");
+
+  if (!tbody) return;
+
   tbody.replaceChildren();
 
-  const sorted = [...rows].sort((a, b) =>
-    b.TransactionDate.localeCompare(a.TransactionDate) ||
-    b.TransactionID.localeCompare(a.TransactionID)
+  const sorted = [...rows].sort(
+    (a, b) =>
+      b.TransactionDate.localeCompare(
+        a.TransactionDate
+      ) ||
+      String(b.TransactionTime || "").localeCompare(
+        String(a.TransactionTime || "")
+      ) ||
+      b.TransactionID.localeCompare(
+        a.TransactionID
+      )
   );
 
   sorted.forEach(row => {
     const tr = document.createElement("tr");
 
-    [
+    const values = [
       row.TransactionID,
       row.TransactionDate,
       row.ShopName,
       row.ProductName,
       row.Quantity,
       money(row.SalesAmount)
-    ].forEach(value => {
+    ];
+
+    values.forEach(value => {
       const td = document.createElement("td");
       td.textContent = value;
       tr.appendChild(td);
@@ -402,27 +829,695 @@ function renderTable(rows) {
 }
 
 // ==========================================
-// UPDATE DASHBOARD
+// WEEKLY SALES BREAKDOWN
+// ==========================================
+
+function renderWeeklyBreakdown(rows) {
+  const section = document.getElementById(
+    "weeklyBreakdownSection"
+  );
+
+  const tbody = document.getElementById(
+    "weeklyBreakdownTable"
+  );
+
+  if (!section || !tbody) return;
+
+  const isWeekly =
+    periodFilter.value === "weekly";
+
+  section.style.display =
+    isWeekly ? "" : "none";
+
+  if (!isWeekly) return;
+
+  tbody.replaceChildren();
+
+  const weekStart = weekStartFromInput(
+    weekFilter.value
+  );
+
+  if (!weekStart) return;
+
+  const start = parseDate(weekStart);
+
+  let weeklyTotal = 0;
+  let weeklyTransactions = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(start);
+
+    date.setUTCDate(
+      start.getUTCDate() + i
+    );
+
+    const dateText = formatDate(date);
+
+    const dayName = date.toLocaleDateString(
+      "en-GB",
+      {
+        weekday: "long",
+        timeZone: "UTC"
+      }
+    );
+
+    const dayRows = rows.filter(
+      row => row.TransactionDate === dateText
+    );
+
+    const revenue =
+      calculateRevenue(dayRows);
+
+    const transactions =
+      calculateTransactions(dayRows);
+
+    const average = transactions
+      ? revenue / transactions
+      : 0;
+
+    const isFuture =
+      dateText > todayISO();
+
+    weeklyTotal += revenue;
+    weeklyTransactions += transactions;
+
+    const tr = document.createElement("tr");
+
+    const values = [
+      dayName,
+      dateText,
+      isFuture
+        ? "Not yet recorded"
+        : money(revenue),
+      isFuture
+        ? "—"
+        : numberFormat(transactions),
+      isFuture
+        ? "—"
+        : money(average)
+    ];
+
+    values.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  }
+
+  // Weekly total row.
+  const totalRow =
+    document.createElement("tr");
+
+  const totalValues = [
+    "WEEK TOTAL",
+    "",
+    money(weeklyTotal),
+    numberFormat(weeklyTransactions),
+    money(
+      weeklyTransactions
+        ? weeklyTotal / weeklyTransactions
+        : 0
+    )
+  ];
+
+  totalValues.forEach(value => {
+    const td = document.createElement("td");
+
+    td.textContent = value;
+    td.style.fontWeight = "bold";
+
+    totalRow.appendChild(td);
+  });
+
+  tbody.appendChild(totalRow);
+}
+
+// ==========================================
+// PART 4: PROFIT & LOSS AND LABOUR
+// ==========================================
+
+// ==========================================
+// PRODUCT COST CALCULATIONS
+// ==========================================
+
+function getProductCostRate(category) {
+  const value = String(category || "")
+    .trim()
+    .toLowerCase();
+
+  if (value === "drinks") {
+    return FINANCIAL_CONFIG.drinksCostRate;
+  }
+
+  return FINANCIAL_CONFIG.foodCostRate;
+}
+
+function calculateProductCosts(rows) {
+  return rows.reduce((total, row) => {
+    const rate = getProductCostRate(
+      row.Category
+    );
+
+    return total +
+      Number(row.SalesAmount || 0) * rate;
+  }, 0);
+}
+
+// ==========================================
+// LABOUR AND OPERATING COST ALLOCATION
+// ==========================================
+
+// Labour and other expenses are simulated
+// at shop/day level.
+//
+// When a product is selected, we allocate
+// shop/day costs proportionally to that
+// product's share of shop/day revenue.
+//
+// This prevents assigning the entire
+// shop's operating cost to one product.
+
+function getOperatingCostAllocation(rows) {
+  const selectedShop = shopFilter.value;
+  const selectedProduct = productFilter.value;
+
+  const eligibleSales = salesData.filter(row => {
+    return isDateInSelectedPeriod(
+      row.TransactionDate
+    ) &&
+    (
+      selectedShop === "All" ||
+      row.ShopName === selectedShop
+    );
+  });
+
+  const shopDayTotals = new Map();
+
+  eligibleSales.forEach(row => {
+    const key =
+      `${row.TransactionDate}|${row.ShopID}`;
+
+    shopDayTotals.set(
+      key,
+      (shopDayTotals.get(key) || 0) +
+      Number(row.SalesAmount || 0)
+    );
+  });
+
+  const selectedShopDayTotals = new Map();
+
+  rows.forEach(row => {
+    const key =
+      `${row.TransactionDate}|${row.ShopID}`;
+
+    selectedShopDayTotals.set(
+      key,
+      (selectedShopDayTotals.get(key) || 0) +
+      Number(row.SalesAmount || 0)
+    );
+  });
+
+  let labourHours = 0;
+  let labourCosts = 0;
+  let otherExpenses = 0;
+
+  selectedShopDayTotals.forEach(
+    (selectedRevenue, key) => {
+      const totalShopRevenue =
+        shopDayTotals.get(key) || 0;
+
+      if (totalShopRevenue <= 0) {
+        return;
+      }
+
+      const allocation = Math.min(
+        1,
+        selectedRevenue / totalShopRevenue
+      );
+
+      const allocatedHours =
+        FINANCIAL_CONFIG.labourHoursPerShopDay *
+        allocation;
+
+      labourHours += allocatedHours;
+
+      labourCosts +=
+        allocatedHours *
+        FINANCIAL_CONFIG.hourlyLabourCost;
+
+      otherExpenses +=
+        FINANCIAL_CONFIG.otherExpensesPerShopDay *
+        allocation;
+    }
+  );
+
+  return {
+    labourHours,
+    labourCosts,
+    otherExpenses,
+    allocationType: selectedProduct === "All"
+      ? "Full shop/day cost"
+      : "Revenue-proportional allocation"
+  };
+}
+
+// ==========================================
+// COMPLETE PROFIT & LOSS CALCULATION
+// ==========================================
+
+function calculateProfitLoss(rows) {
+  const revenue = calculateRevenue(rows);
+
+  const productCosts =
+    calculateProductCosts(rows);
+
+  const grossProfit =
+    revenue - productCosts;
+
+  const wasteCosts =
+    revenue * FINANCIAL_CONFIG.wasteRate;
+
+  const operating =
+    getOperatingCostAllocation(rows);
+
+  const labourHours =
+    operating.labourHours;
+
+  const labourCosts =
+    operating.labourCosts;
+
+  const otherExpenses =
+    operating.otherExpenses;
+
+  const netProfit =
+    grossProfit -
+    labourCosts -
+    wasteCosts -
+    otherExpenses;
+
+  const profitMargin = revenue > 0
+    ? netProfit / revenue * 100
+    : 0;
+
+  const labourPercentage = revenue > 0
+    ? labourCosts / revenue * 100
+    : 0;
+
+  const salesPerLabourHour = labourHours > 0
+    ? revenue / labourHours
+    : 0;
+
+  return {
+    revenue,
+    productCosts,
+    grossProfit,
+    labourCosts,
+    wasteCosts,
+    otherExpenses,
+    netProfit,
+    profitMargin,
+    labourHours,
+    labourPercentage,
+    salesPerLabourHour
+  };
+}
+
+// ==========================================
+// PROFIT & LOSS KPI CARDS
+// ==========================================
+
+function renderProfitLoss(rows) {
+  const pl = calculateProfitLoss(rows);
+
+  setText(
+    "plRevenue",
+    money(pl.revenue)
+  );
+
+  setText(
+    "plProductCosts",
+    money(pl.productCosts)
+  );
+
+  setText(
+    "plGrossProfit",
+    money(pl.grossProfit)
+  );
+
+  setText(
+    "plLabourCosts",
+    money(pl.labourCosts)
+  );
+
+  setText(
+    "plWasteCosts",
+    money(pl.wasteCosts)
+  );
+
+  setText(
+    "plOtherExpenses",
+    money(pl.otherExpenses)
+  );
+
+  setText(
+    "plNetProfit",
+    money(pl.netProfit)
+  );
+
+  setText(
+    "plProfitMargin",
+    percentage(pl.profitMargin)
+  );
+
+  renderProfitLossChart(pl);
+  renderShopProfitTable(rows);
+  renderLabourPerformance(rows, pl);
+}
+
+// ==========================================
+// PROFIT & LOSS BREAKDOWN CHART
+// ==========================================
+
+function renderProfitLossChart(pl) {
+  const entries = [
+    ["Sales Revenue", pl.revenue],
+    ["Product Costs", pl.productCosts],
+    ["Gross Profit", pl.grossProfit],
+    ["Labour Costs", pl.labourCosts],
+    ["Waste Costs", pl.wasteCosts],
+    ["Other Expenses", pl.otherExpenses],
+    ["Net Profit", pl.netProfit]
+  ];
+
+  const container =
+    document.getElementById("profitLossChart");
+
+  if (!container) return;
+
+  container.replaceChildren();
+
+  // Handle negative profit with a signed
+  // label and magnitude-based bar length.
+  const maximum = Math.max(
+    ...entries.map(([, value]) => Math.abs(value)),
+    1
+  );
+
+  entries.forEach(([name, value]) => {
+    const row = document.createElement("div");
+    row.className = "bar-row";
+
+    const label = document.createElement("div");
+    label.className = "bar-label";
+
+    const nameText = document.createElement("span");
+    nameText.textContent = name;
+
+    const amountText =
+      document.createElement("strong");
+
+    amountText.textContent = money(value);
+
+    label.append(nameText, amountText);
+
+    const track = document.createElement("div");
+    track.className = "bar-track";
+
+    const fill = document.createElement("div");
+    fill.className = "bar-fill";
+
+    if (value < 0) {
+      fill.style.background = "#dc2626";
+    }
+
+    fill.style.width =
+      `${Math.abs(value) / maximum * 100}%`;
+
+    track.appendChild(fill);
+    row.append(label, track);
+
+    container.appendChild(row);
+  });
+}
+
+// ==========================================
+// SHOP PROFITABILITY TABLE
+// ==========================================
+
+function renderShopProfitTable(rows) {
+  const tbody =
+    document.getElementById("shopProfitTable");
+
+  if (!tbody) return;
+
+  tbody.replaceChildren();
+
+  const shops = [
+    ...new Set(rows.map(row => row.ShopName))
+  ].sort();
+
+  if (!shops.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+
+    td.colSpan = 8;
+    td.textContent =
+      "No shop sales for selected period";
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  const results = shops.map(shop => {
+    const shopRows = rows.filter(
+      row => row.ShopName === shop
+    );
+
+    return {
+      shop,
+      ...calculateProfitLoss(shopRows)
+    };
+  });
+
+  results.sort(
+    (a, b) => b.netProfit - a.netProfit
+  );
+
+  results.forEach(result => {
+    const tr = document.createElement("tr");
+
+    const values = [
+      result.shop,
+      money(result.revenue),
+      money(result.productCosts),
+      money(result.labourCosts),
+      money(result.wasteCosts),
+      money(result.otherExpenses),
+      money(result.netProfit),
+      percentage(result.profitMargin)
+    ];
+
+    values.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ==========================================
+// LABOUR PERFORMANCE
+// ==========================================
+
+function renderLabourPerformance(rows, pl) {
+  setText(
+    "labourHours",
+    numberFormat(pl.labourHours.toFixed(1))
+  );
+
+  setText(
+    "labourPercentage",
+    percentage(pl.labourPercentage)
+  );
+
+  setText(
+    "salesPerLabourHour",
+    money(pl.salesPerLabourHour)
+  );
+
+  const shops = [
+    ...new Set(rows.map(row => row.ShopName))
+  ];
+
+  const results = shops.map(shop => {
+    const shopRows = rows.filter(
+      row => row.ShopName === shop
+    );
+
+    return {
+      shop,
+      ...calculateProfitLoss(shopRows)
+    };
+  });
+
+  results.sort(
+    (a, b) => b.netProfit - a.netProfit
+  );
+
+  setText(
+    "bestProfitShop",
+    results.length ? results[0].shop : "—"
+  );
+
+  const labourEntries = results
+    .map(result => [
+      result.shop,
+      result.salesPerLabourHour
+    ])
+    .sort((a, b) => b[1] - a[1]);
+
+  renderBars(
+    "labourEfficiencyChart",
+    labourEntries
+  );
+}
+
+// ==========================================
+// PART 5: HOURLY ANALYTICS AND CONTROLS
+// ==========================================
+
+// ==========================================
+// HOURLY SALES AND TRANSACTION CHARTS
+// ==========================================
+
+function renderHourlyCharts(rows) {
+  const revenueContainer = document.getElementById(
+    "hourlyRevenueChart"
+  );
+
+  const transactionsContainer = document.getElementById(
+    "hourlyTransactionsChart"
+  );
+
+  if (!revenueContainer || !transactionsContainer) {
+    return;
+  }
+
+  const timedRows = rows.filter(row =>
+    typeof row.TransactionTime === "string" &&
+    /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(
+      row.TransactionTime
+    )
+  );
+
+  if (!timedRows.length) {
+    revenueContainer.textContent =
+      "No hourly data available for this period yet.";
+
+    transactionsContainer.textContent =
+      "Hourly transactions will appear when timestamped sales are generated.";
+
+    return;
+  }
+
+  // Create one entry for every hour.
+  const hours = Array.from(
+    { length: 24 },
+    (_, hour) => ({
+      label: String(hour).padStart(2, "0") + ":00",
+      revenue: 0,
+      transactions: 0
+    })
+  );
+
+  timedRows.forEach(row => {
+    const hour = Number(
+      row.TransactionTime.slice(0, 2)
+    );
+
+    hours[hour].revenue +=
+      Number(row.SalesAmount || 0);
+
+    hours[hour].transactions += 1;
+  });
+
+  // Show hours with recorded transactions.
+  const activeHours = hours.filter(
+    hour => hour.transactions > 0
+  );
+
+  renderBars(
+    "hourlyRevenueChart",
+    activeHours.map(hour => [
+      hour.label,
+      hour.revenue
+    ])
+  );
+
+  // Reuse bar chart rendering, but display
+  // transaction counts rather than currency.
+  renderBars(
+    "hourlyTransactionsChart",
+    activeHours.map(hour => [
+      hour.label,
+      hour.transactions
+    ]),
+    { units: true }
+  );
+
+  // Explain incomplete historical coverage.
+  const missingTimes =
+    rows.length - timedRows.length;
+
+  if (missingTimes > 0) {
+    const note = document.createElement("p");
+
+    note.textContent =
+      `${numberFormat(missingTimes)} historical transactions ` +
+      "have no recorded time and are excluded " +
+      "from hourly analysis.";
+
+    note.style.fontSize = "12px";
+    note.style.color = "#64748b";
+    note.style.marginTop = "12px";
+
+    revenueContainer.appendChild(note);
+  }
+}
+
+// ==========================================
+// UPDATE ALL DASHBOARD COMPONENTS
 // ==========================================
 
 function updateDashboard() {
   const filtered = getFilteredSales();
 
-  const total = filtered.reduce(
-    (sum, row) => sum + row.SalesAmount, 0
+  const revenue = calculateRevenue(filtered);
+  const transactions = calculateTransactions(filtered);
+  const averageSale = calculateAverageSale(filtered);
+
+  // Main sales KPI cards.
+  setText(
+    "totalSales",
+    money(revenue)
   );
 
-  const count = filtered.length;
+  setText(
+    "transactions",
+    numberFormat(transactions)
+  );
 
-  document.getElementById("totalSales").textContent =
-    money(total);
+  setText(
+    "averageSale",
+    money(averageSale)
+  );
 
-  document.getElementById("transactions").textContent =
-    count.toLocaleString("en-GB");
-
-  document.getElementById("averageSale").textContent =
-    money(count ? total / count : 0);
-
+  // Existing sales charts.
   renderBars(
     "shopChart",
     aggregate(filtered, "ShopName")
@@ -436,132 +1531,99 @@ function updateDashboard() {
 
   renderBars(
     "bestSellersChart",
-    aggregate(filtered, "ProductName", "Quantity").slice(0, 10),
-    { product: true, units: true }
+    aggregate(
+      filtered,
+      "ProductName",
+      "Quantity"
+    ).slice(0, 10),
+    {
+      product: true,
+      units: true
+    }
   );
 
   renderBars(
     "topRevenueChart",
-    aggregate(filtered, "ProductName").slice(0, 10),
+    aggregate(
+      filtered,
+      "ProductName"
+    ).slice(0, 10),
     { product: true }
   );
 
+  // Daily, weekly and monthly trends.
   renderDaily(filtered);
-  renderTable(filtered);
+
+  // Weekly breakdown and transactions.
   renderWeeklyBreakdown(filtered);
+  renderTable(filtered);
+
+  // New hourly sales analytics.
+  renderHourlyCharts(filtered);
+
+  // New Profit & Loss and labour analytics.
+  renderProfitLoss(filtered);
 }
 
 // ==========================================
-// EVENT LISTENERS
+// DASHBOARD EVENT LISTENERS
 // ==========================================
 
-
-function renderWeeklyBreakdown(rows) {
-  const section = document.getElementById("weeklyBreakdownSection");
-  const tbody = document.getElementById("weeklyBreakdownTable");
-
-  if (!section || !tbody) return;
-
-  const isWeekly = periodFilter.value === "weekly";
-  section.style.display = isWeekly ? "" : "none";
-
-  if (!isWeekly) return;
-
-  tbody.replaceChildren();
-
-  const weekStart = weekStartFromInput(weekFilter.value);
-  if (!weekStart) return;
-
-  const start = parseDate(weekStart);
-  let weeklyTotal = 0;
-  let weeklyTransactions = 0;
-
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(start);
-    date.setUTCDate(start.getUTCDate() + i);
-
-    const dateText = formatDate(date);
-    const dayName = date.toLocaleDateString("en-GB", {
-      weekday: "long",
-      timeZone: "UTC"
-    });
-
-    const dayRows = rows.filter(
-      row => row.TransactionDate === dateText
-    );
-
-    const revenue = dayRows.reduce(
-      (sum, row) => sum + row.SalesAmount, 0
-    );
-
-    const transactions = dayRows.length;
-    const average = transactions ? revenue / transactions : 0;
-
-    const isFuture = dateText > todayISO();
-
-    weeklyTotal += revenue;
-    weeklyTransactions += transactions;
-
-    const tr = document.createElement("tr");
-
-    const values = [
-      dayName,
-      dateText,
-      isFuture ? "Not yet recorded" : money(revenue),
-      isFuture ? "—" : transactions.toLocaleString("en-GB"),
-      isFuture ? "—" : money(average)
-    ];
-
-    values.forEach(value => {
-      const td = document.createElement("td");
-      td.textContent = value;
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-  }
-
-  const totalRow = document.createElement("tr");
-
-  [
-    "WEEK TOTAL",
-    "",
-    money(weeklyTotal),
-    weeklyTransactions.toLocaleString("en-GB"),
-    money(
-      weeklyTransactions
-        ? weeklyTotal / weeklyTransactions
-        : 0
-    )
-  ].forEach(value => {
-    const td = document.createElement("td");
-    td.textContent = value;
-    td.style.fontWeight = "bold";
-    totalRow.appendChild(td);
-  });
-
-  tbody.appendChild(totalRow);
-}
-
+// Reporting period selection.
 periodFilter.addEventListener("change", () => {
   updatePeriodControls();
   updateDashboard();
 });
 
-dateFilter.addEventListener("change", updateDashboard);
-weekFilter.addEventListener("change", updateDashboard);
-shopFilter.addEventListener("change", updateDashboard);
-productFilter.addEventListener("change", updateDashboard);
+// Date, week and month filters.
+dateFilter.addEventListener(
+  "change",
+  updateDashboard
+);
+
+weekFilter.addEventListener(
+  "change",
+  updateDashboard
+);
+
+monthFilter.addEventListener(
+  "change",
+  updateDashboard
+);
+
+// Shop and product filters.
+shopFilter.addEventListener(
+  "change",
+  updateDashboard
+);
+
+productFilter.addEventListener(
+  "change",
+  updateDashboard
+);
+
+// ==========================================
+// RESET ALL FILTERS
+// ==========================================
 
 resetBtn.addEventListener("click", () => {
+  const today = todayISO();
+
   shopFilter.value = "All";
   productFilter.value = "All";
+
   periodFilter.value = "daily";
-  dateFilter.value = todayISO();
-  weekFilter.value = getISOWeek(todayISO());
+
+  dateFilter.value = today;
+  weekFilter.value = getISOWeek(today);
+  monthFilter.value = today.slice(0, 7);
 
   updatePeriodControls();
   updateDashboard();
 });
+
+// ==========================================
+// START THE DASHBOARD
+// ==========================================
 
 loadSalesData();
