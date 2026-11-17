@@ -2187,8 +2187,14 @@ const valid = rows.filter(row =>
     Number(row.revenue)
   );
 
-  const minTemp = Math.min(...values) - 1;
-  const maxTemp = Math.max(...values) + 1;
+  const minTemp = type === "rainfall"
+  ? 0
+  : Math.min(...values) - 1;
+
+const maxTemp = Math.max(
+  ...values,
+  type === "rainfall" ? 0 : -Infinity
+) + 1;
   const maxRevenue = Math.max(...revenues, 1) * 1.15;
 
   const xScale = value =>
