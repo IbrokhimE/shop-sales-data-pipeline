@@ -2393,7 +2393,7 @@ const details =
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 6;
+    td.colSpan = 5;
     td.textContent = "No matching records available.";
     tr.appendChild(td);
     tbody.appendChild(tr);
@@ -2403,18 +2403,17 @@ const details =
   rows.forEach(row => {
     const tr = document.createElement("tr");
 
-    const values = [
-      row.date,
-      row.city,
-      row.temperature === null
-        ? "N/A"
-        : `${Number(row.temperature).toFixed(1)}°C`,
-      row.rainfall === null
-        ? "N/A"
-        : `${Number(row.rainfall).toFixed(1)} mm`,
-      money(row.revenue),
-      numberFormat(row.transactions)
-    ];
+    
+const values = [
+  row.date,
+  row.city,
+  row.temperature === null
+    ? "N/A"
+    : `${Number(row.temperature).toFixed(1)}°C`,
+  money(row.revenue),
+  numberFormat(row.transactions)
+];
+
 
     values.forEach(value => {
       const td = document.createElement("td");
