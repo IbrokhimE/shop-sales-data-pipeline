@@ -1,0 +1,20 @@
+
+{
+  "source": "Ticketmaster Discovery API",
+  "status": "pending_api_approval",
+  "last_updated": null,
+  "cities": [
+    {
+      "city": "Manchester",
+      "events": []
+    },
+    {
+      "city": "Birmingham",
+      "events": []
+    },
+    {
+      "city": "London",
+      "events": []
+    }
+  ]
+}
