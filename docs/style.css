@@ -361,3 +361,51 @@ footer {
     font-size: 12px;
   }
 }
+
+/* ==========================================
+   WEATHER VS SALES KPI CARDS
+   ========================================== */
+
+#weatherSalesSection .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+#weatherSalesSection .kpi-card {
+  background: #f4f8fc;
+  border: 1px solid #dce7f2;
+  border-radius: 14px;
+  padding: 22px;
+  min-width: 0;
+  box-shadow: 0 3px 10px rgba(20, 45, 75, 0.05);
+}
+
+#weatherSalesSection .kpi-card p {
+  color: #61738a;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+#weatherSalesSection .kpi-card h2 {
+  color: #17365d;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Tablet */
+@media (max-width: 1000px) {
+  #weatherSalesSection .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #weatherSalesSection .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
