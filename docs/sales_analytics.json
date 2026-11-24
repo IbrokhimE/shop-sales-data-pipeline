@@ -1,82 +1,82 @@
 {
-  "GeneratedAt": "2026-11-23T17:53:49.839811",
+  "GeneratedAt": "2026-11-24T17:26:57.954169",
   "DataType": "Synthetic Sales Data",
   "KPIs": {
-    "TotalTransactions": 6402,
-    "TotalRevenue": 37052.8,
-    "AverageTransactionValue": 5.79,
-    "TotalUnitsSold": 9407
+    "TotalTransactions": 7602,
+    "TotalRevenue": 43960.85,
+    "AverageTransactionValue": 5.78,
+    "TotalUnitsSold": 11162
   },
   "BestSellers": [
     {
       "ProductID": "P102",
       "ProductName": "Latte",
       "Category": "Drinks",
-      "UnitsSold": 1578,
-      "TotalRevenue": 5523.0
+      "UnitsSold": 1861,
+      "TotalRevenue": 6513.5
     },
     {
       "ProductID": "P105",
       "ProductName": "Cappuccino",
       "Category": "Drinks",
-      "UnitsSold": 1331,
-      "TotalRevenue": 4791.6
+      "UnitsSold": 1623,
+      "TotalRevenue": 5842.8
     },
     {
       "ProductID": "P104",
       "ProductName": "Croissant",
       "Category": "Food",
-      "UnitsSold": 1228,
-      "TotalRevenue": 3377.0
+      "UnitsSold": 1451,
+      "TotalRevenue": 3990.25
     },
     {
       "ProductID": "P106",
       "ProductName": "Americano",
       "Category": "Drinks",
-      "UnitsSold": 995,
-      "TotalRevenue": 2985.0
+      "UnitsSold": 1197,
+      "TotalRevenue": 3591.0
     },
     {
       "ProductID": "P107",
       "ProductName": "Chicken Baguette",
       "Category": "Food",
-      "UnitsSold": 897,
-      "TotalRevenue": 5606.25
+      "UnitsSold": 1054,
+      "TotalRevenue": 6587.5
     },
     {
       "ProductID": "P101",
       "ProductName": "Chicken Sandwich",
       "Category": "Food",
-      "UnitsSold": 797,
-      "TotalRevenue": 4383.5
+      "UnitsSold": 965,
+      "TotalRevenue": 5307.5
     },
     {
       "ProductID": "P103",
       "ProductName": "Tuna Baguette",
       "Category": "Food",
-      "UnitsSold": 735,
-      "TotalRevenue": 3675.0
+      "UnitsSold": 878,
+      "TotalRevenue": 4390.0
     },
     {
       "ProductID": "P109",
       "ProductName": "Egg Sandwich",
       "Category": "Food",
-      "UnitsSold": 709,
-      "TotalRevenue": 3190.5
+      "UnitsSold": 815,
+      "TotalRevenue": 3667.5
     },
     {
       "ProductID": "P108",
       "ProductName": "Chocolate Muffin",
       "Category": "Food",
-      "UnitsSold": 581,
-      "TotalRevenue": 1713.95
+      "UnitsSold": 709,
+      "TotalRevenue": 2091.55
     },
     {
       "ProductID": "P110",
       "ProductName": "Orange Juice",
       "Category": "Drinks",
-      "UnitsSold": 556,
-      "TotalRevenue": 1807.0
+      "UnitsSold": 609,
+      "TotalRevenue": 1979.25
     }
   ],
   "TopRevenueProducts": [
@@ -84,94 +84,94 @@
       "ProductID": "P107",
       "ProductName": "Chicken Baguette",
       "Category": "Food",
-      "UnitsSold": 897,
-      "TotalRevenue": 5606.25
+      "UnitsSold": 1054,
+      "TotalRevenue": 6587.5
     },
     {
       "ProductID": "P102",
       "ProductName": "Latte",
       "Category": "Drinks",
-      "UnitsSold": 1578,
-      "TotalRevenue": 5523.0
+      "UnitsSold": 1861,
+      "TotalRevenue": 6513.5
     },
     {
       "ProductID": "P105",
       "ProductName": "Cappuccino",
       "Category": "Drinks",
-      "UnitsSold": 1331,
-      "TotalRevenue": 4791.6
+      "UnitsSold": 1623,
+      "TotalRevenue": 5842.8
     },
     {
       "ProductID": "P101",
       "ProductName": "Chicken Sandwich",
       "Category": "Food",
-      "UnitsSold": 797,
-      "TotalRevenue": 4383.5
+      "UnitsSold": 965,
+      "TotalRevenue": 5307.5
     },
     {
       "ProductID": "P103",
       "ProductName": "Tuna Baguette",
       "Category": "Food",
-      "UnitsSold": 735,
-      "TotalRevenue": 3675.0
+      "UnitsSold": 878,
+      "TotalRevenue": 4390.0
     },
     {
       "ProductID": "P104",
       "ProductName": "Croissant",
       "Category": "Food",
-      "UnitsSold": 1228,
-      "TotalRevenue": 3377.0
+      "UnitsSold": 1451,
+      "TotalRevenue": 3990.25
     },
     {
       "ProductID": "P109",
       "ProductName": "Egg Sandwich",
       "Category": "Food",
-      "UnitsSold": 709,
-      "TotalRevenue": 3190.5
+      "UnitsSold": 815,
+      "TotalRevenue": 3667.5
     },
     {
       "ProductID": "P106",
       "ProductName": "Americano",
       "Category": "Drinks",
-      "UnitsSold": 995,
-      "TotalRevenue": 2985.0
-    },
-    {
-      "ProductID": "P110",
-      "ProductName": "Orange Juice",
-      "Category": "Drinks",
-      "UnitsSold": 556,
-      "TotalRevenue": 1807.0
+      "UnitsSold": 1197,
+      "TotalRevenue": 3591.0
     },
     {
       "ProductID": "P108",
       "ProductName": "Chocolate Muffin",
       "Category": "Food",
-      "UnitsSold": 581,
-      "TotalRevenue": 1713.95
+      "UnitsSold": 709,
+      "TotalRevenue": 2091.55
+    },
+    {
+      "ProductID": "P110",
+      "ProductName": "Orange Juice",
+      "Category": "Drinks",
+      "UnitsSold": 609,
+      "TotalRevenue": 1979.25
     }
   ],
   "ShopPerformance": [
     {
       "ShopID": "S03",
       "ShopName": "London",
-      "Transactions": 2372,
-      "UnitsSold": 3501,
-      "TotalRevenue": 13758.7
+      "Transactions": 2636,
+      "UnitsSold": 3888,
+      "TotalRevenue": 15312.1
     },
     {
       "ShopID": "S02",
       "ShopName": "Birmingham",
-      "Transactions": 2037,
-      "UnitsSold": 2978,
-      "TotalRevenue": 11811.65
+      "Transactions": 2514,
+      "UnitsSold": 3669,
+      "TotalRevenue": 14506.8
     },
     {
       "ShopID": "S01",
       "ShopName": "Manchester",
-      "Transactions": 1993,
-      "UnitsSold": 2928,
-      "TotalRevenue": 11482.45
+      "Transactions": 2452,
+      "UnitsSold": 3605,
+      "TotalRevenue": 14141.95
     }
   ],
   "DailySales": [
@@ -222,18 +222,24 @@
       "Transactions": 796,
       "UnitsSold": 1159,
       "TotalRevenue": 4568.95
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Transactions": 1200,
+      "UnitsSold": 1755,
+      "TotalRevenue": 6908.05
     }
   ],
   "CategoryPerformance": [
     {
       "Category": "Food",
-      "UnitsSold": 4947,
-      "TotalRevenue": 21946.2
+      "UnitsSold": 5872,
+      "TotalRevenue": 26034.3
     },
     {
       "Category": "Drinks",
-      "UnitsSold": 4460,
-      "TotalRevenue": 15106.6
+      "UnitsSold": 5290,
+      "TotalRevenue": 17926.55
     }
   ],
   "HourlySales": [
@@ -908,6 +914,118 @@
       "UnitsSold": 19,
       "TotalRevenue": 72.8,
       "AverageTransactionValue": 5.2
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "06",
+      "Transactions": 32,
+      "UnitsSold": 42,
+      "TotalRevenue": 159.0,
+      "AverageTransactionValue": 4.97
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "07",
+      "Transactions": 73,
+      "UnitsSold": 101,
+      "TotalRevenue": 410.5,
+      "AverageTransactionValue": 5.62
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "08",
+      "Transactions": 150,
+      "UnitsSold": 220,
+      "TotalRevenue": 862.4,
+      "AverageTransactionValue": 5.75
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "09",
+      "Transactions": 127,
+      "UnitsSold": 198,
+      "TotalRevenue": 782.65,
+      "AverageTransactionValue": 6.16
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "10",
+      "Transactions": 79,
+      "UnitsSold": 125,
+      "TotalRevenue": 493.7,
+      "AverageTransactionValue": 6.25
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "11",
+      "Transactions": 82,
+      "UnitsSold": 110,
+      "TotalRevenue": 431.65,
+      "AverageTransactionValue": 5.26
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "12",
+      "Transactions": 172,
+      "UnitsSold": 266,
+      "TotalRevenue": 1039.25,
+      "AverageTransactionValue": 6.04
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "13",
+      "Transactions": 125,
+      "UnitsSold": 174,
+      "TotalRevenue": 687.85,
+      "AverageTransactionValue": 5.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "14",
+      "Transactions": 111,
+      "UnitsSold": 157,
+      "TotalRevenue": 632.9,
+      "AverageTransactionValue": 5.7
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "15",
+      "Transactions": 80,
+      "UnitsSold": 109,
+      "TotalRevenue": 422.55,
+      "AverageTransactionValue": 5.28
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "16",
+      "Transactions": 59,
+      "UnitsSold": 89,
+      "TotalRevenue": 350.55,
+      "AverageTransactionValue": 5.94
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "17",
+      "Transactions": 47,
+      "UnitsSold": 67,
+      "TotalRevenue": 265.95,
+      "AverageTransactionValue": 5.66
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "18",
+      "Transactions": 37,
+      "UnitsSold": 54,
+      "TotalRevenue": 205.9,
+      "AverageTransactionValue": 5.56
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "Hour": "19",
+      "Transactions": 26,
+      "UnitsSold": 43,
+      "TotalRevenue": 163.2,
+      "AverageTransactionValue": 6.28
     }
   ],
   "HourlyShopPerformance": [
@@ -2926,11 +3044,347 @@
       "Hour": "19",
       "Transactions": 1,
       "TotalRevenue": 5.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "06",
+      "Transactions": 15,
+      "TotalRevenue": 76.0
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "07",
+      "Transactions": 29,
+      "TotalRevenue": 166.95
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "08",
+      "Transactions": 49,
+      "TotalRevenue": 263.9
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "09",
+      "Transactions": 62,
+      "TotalRevenue": 394.05
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "10",
+      "Transactions": 30,
+      "TotalRevenue": 176.65
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "11",
+      "Transactions": 40,
+      "TotalRevenue": 199.1
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "12",
+      "Transactions": 72,
+      "TotalRevenue": 424.75
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "13",
+      "Transactions": 43,
+      "TotalRevenue": 228.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "14",
+      "Transactions": 34,
+      "TotalRevenue": 198.9
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "15",
+      "Transactions": 33,
+      "TotalRevenue": 163.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "16",
+      "Transactions": 25,
+      "TotalRevenue": 144.1
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "17",
+      "Transactions": 19,
+      "TotalRevenue": 110.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "18",
+      "Transactions": 19,
+      "TotalRevenue": 107.7
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S02",
+      "ShopName": "Birmingham",
+      "Hour": "19",
+      "Transactions": 7,
+      "TotalRevenue": 40.55
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "06",
+      "Transactions": 3,
+      "TotalRevenue": 18.6
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "07",
+      "Transactions": 17,
+      "TotalRevenue": 127.0
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "08",
+      "Transactions": 36,
+      "TotalRevenue": 215.2
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "09",
+      "Transactions": 35,
+      "TotalRevenue": 229.1
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "10",
+      "Transactions": 19,
+      "TotalRevenue": 121.4
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "11",
+      "Transactions": 19,
+      "TotalRevenue": 88.55
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "12",
+      "Transactions": 26,
+      "TotalRevenue": 155.0
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "13",
+      "Transactions": 28,
+      "TotalRevenue": 157.0
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "14",
+      "Transactions": 25,
+      "TotalRevenue": 133.45
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "15",
+      "Transactions": 14,
+      "TotalRevenue": 55.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "16",
+      "Transactions": 13,
+      "TotalRevenue": 92.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "17",
+      "Transactions": 10,
+      "TotalRevenue": 53.4
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "18",
+      "Transactions": 10,
+      "TotalRevenue": 52.3
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S03",
+      "ShopName": "London",
+      "Hour": "19",
+      "Transactions": 9,
+      "TotalRevenue": 54.4
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "06",
+      "Transactions": 14,
+      "TotalRevenue": 64.4
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "07",
+      "Transactions": 27,
+      "TotalRevenue": 116.55
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "08",
+      "Transactions": 65,
+      "TotalRevenue": 383.3
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "09",
+      "Transactions": 30,
+      "TotalRevenue": 159.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "10",
+      "Transactions": 30,
+      "TotalRevenue": 195.65
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "11",
+      "Transactions": 23,
+      "TotalRevenue": 144.0
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "12",
+      "Transactions": 74,
+      "TotalRevenue": 459.5
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "13",
+      "Transactions": 54,
+      "TotalRevenue": 302.35
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "14",
+      "Transactions": 52,
+      "TotalRevenue": 300.55
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "15",
+      "Transactions": 33,
+      "TotalRevenue": 203.55
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "16",
+      "Transactions": 21,
+      "TotalRevenue": 113.95
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "17",
+      "Transactions": 18,
+      "TotalRevenue": 102.05
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "18",
+      "Transactions": 8,
+      "TotalRevenue": 45.9
+    },
+    {
+      "TransactionDate": "2026-11-24",
+      "ShopID": "S01",
+      "ShopName": "Manchester",
+      "Hour": "19",
+      "Transactions": 10,
+      "TotalRevenue": 68.25
     }
   ],
   "TransactionTimeQuality": {
-    "TotalRecords": 6402,
-    "RecordsWithTime": 4566,
+    "TotalRecords": 7602,
+    "RecordsWithTime": 5766,
     "RecordsWithoutTime": 1836
   }
 }
