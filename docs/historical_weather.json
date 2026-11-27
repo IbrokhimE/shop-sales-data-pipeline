@@ -1,6 +1,6 @@
 {
   "source": "Open-Meteo",
-  "last_updated": "2026-11-26T17:50:06.778663+00:00",
+  "last_updated": "2026-11-27T17:34:28.222071+00:00",
   "weather_records": [
     {
       "city": "Birmingham",
@@ -203,10 +203,10 @@
     {
       "city": "Birmingham",
       "date": "2026-11-22",
-      "data_source": "historical_forecast",
-      "temperature_2m_mean": 4.8,
-      "temperature_2m_max": 7.5,
-      "temperature_2m_min": 2.8,
+      "data_source": "archive",
+      "temperature_2m_mean": 4.2,
+      "temperature_2m_max": 6.7,
+      "temperature_2m_min": 2.2,
       "precipitation_sum": 0.0,
       "rain_sum": 0.0,
       "weather_code": 3
@@ -214,10 +214,10 @@
     {
       "city": "London",
       "date": "2026-11-22",
-      "data_source": "historical_forecast",
-      "temperature_2m_mean": 7.1,
-      "temperature_2m_max": 8.9,
-      "temperature_2m_min": 5.1,
+      "data_source": "archive",
+      "temperature_2m_mean": 5.9,
+      "temperature_2m_max": 8.3,
+      "temperature_2m_min": 3.2,
       "precipitation_sum": 0.0,
       "rain_sum": 0.0,
       "weather_code": 3
@@ -225,10 +225,10 @@
     {
       "city": "Manchester",
       "date": "2026-11-22",
-      "data_source": "historical_forecast",
-      "temperature_2m_mean": 5.5,
-      "temperature_2m_max": 8.1,
-      "temperature_2m_min": 3.4,
+      "data_source": "archive",
+      "temperature_2m_mean": 4.7,
+      "temperature_2m_max": 8.0,
+      "temperature_2m_min": 2.5,
       "precipitation_sum": 0.0,
       "rain_sum": 0.0,
       "weather_code": 3
@@ -328,6 +328,39 @@
       "temperature_2m_mean": 4.8,
       "temperature_2m_max": 6.9,
       "temperature_2m_min": 3.2,
+      "precipitation_sum": 0.0,
+      "rain_sum": 0.0,
+      "weather_code": 3
+    },
+    {
+      "city": "Birmingham",
+      "date": "2026-11-26",
+      "data_source": "historical_forecast",
+      "temperature_2m_mean": 3.4,
+      "temperature_2m_max": 4.1,
+      "temperature_2m_min": 2.0,
+      "precipitation_sum": 0.0,
+      "rain_sum": 0.0,
+      "weather_code": 3
+    },
+    {
+      "city": "London",
+      "date": "2026-11-26",
+      "data_source": "historical_forecast",
+      "temperature_2m_mean": 4.9,
+      "temperature_2m_max": 6.1,
+      "temperature_2m_min": 2.7,
+      "precipitation_sum": 0.0,
+      "rain_sum": 0.0,
+      "weather_code": 3
+    },
+    {
+      "city": "Manchester",
+      "date": "2026-11-26",
+      "data_source": "historical_forecast",
+      "temperature_2m_mean": 4.0,
+      "temperature_2m_max": 5.2,
+      "temperature_2m_min": 2.7,
       "precipitation_sum": 0.0,
       "rain_sum": 0.0,
       "weather_code": 3
